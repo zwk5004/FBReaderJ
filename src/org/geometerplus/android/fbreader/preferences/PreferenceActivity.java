@@ -108,8 +108,15 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 		setResult(FBReader.RESULT_REPAINT);
 
 		final ViewOptions viewOptions = FBReaderApp.ViewOptions;
-		final ZLAndroidLibrary androidLibrary = (ZLAndroidLibrary)ZLAndroidLibrary.Instance();
+		final MiscOptions miscOptions = FBReaderApp.MiscOptions;
+		final FooterOptions footerOptions = FBReaderApp.FooterOptions;
+		final PageTurningOptions pageTurningOptions = FBReaderApp.PageTurningOptions;
+		final ImageOptions imageOptions = FBReaderApp.ImageOptions;
 		final ColorProfile profile = FBReaderApp.getColorProfile();
+		final ZLTextStyleCollection collection = FBReaderApp.TextStyleCollection;
+		final ZLKeyBindings keyBindings = FBReaderApp.keyBindingsStatic();
+
+		final ZLAndroidLibrary androidLibrary = (ZLAndroidLibrary)ZLAndroidLibrary.Instance();
 		// TODO: use user-defined locale, not the default one,
 		// or set user-defined locale as default
 		final String decimalSeparator =
@@ -172,7 +179,7 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 		));
 		appearanceScreen.addPreference(new ZLBooleanPreference(
 			this,
-			FBReaderApp.AllowScreenBrightnessAdjustmentOption,
+			miscOptions.AllowScreenBrightnessAdjustment,
 			appearanceScreen.Resource,
 			"allowScreenBrightnessAdjustment"
 		) {
@@ -218,7 +225,6 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 		}
 		fontPropertiesScreen.addOption(ZLAndroidPaintContext.SubpixelOption, "subpixel");
 
-		final ZLTextStyleCollection collection = FBReaderApp.TextStyleCollection;
 		final ZLTextBaseStyle baseStyle = collection.getBaseStyle();
 
 		final FontOption fontOption = new FontOption(
@@ -393,9 +399,6 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			colorsScreen.addOption(profile.BackgroundOption, "backgroundColor")
 		);
 		bgPreferences.setEnabled("".equals(profile.WallpaperOption.getValue()));
-		/*
-		colorsScreen.addOption(profile.SelectionBackgroundOption, "selectionBackground");
-		 */
 		colorsScreen.addOption(profile.HighlightingOption, "highlighting");
 		colorsScreen.addOption(profile.RegularTextOption, "text");
 		colorsScreen.addOption(profile.HyperlinkTextOption, "hyperlink");
@@ -442,7 +445,6 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			}
 		});
 
-		final FooterOptions footerOptions = FBReaderApp.FooterOptions;
 		footerPreferences.add(statusLineScreen.addPreference(new ZLIntegerRangePreference(
 			this, statusLineScreen.Resource.getResource("footerHeight"),
 			viewOptions.FooterHeight
@@ -472,13 +474,9 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 		}
 		 */
 
-		final PageTurningOptions pageTurningOptions = FBReaderApp.PageTurningOptions;
-
-		final ZLKeyBindings keyBindings = FBReaderApp.keyBindingsStatic();
-
 		final Screen scrollingScreen = createPreferenceScreen("scrolling");
 		scrollingScreen.addOption(pageTurningOptions.FingerScrolling, "fingerScrolling");
-		scrollingScreen.addOption(FBReaderApp.EnableDoubleTapOption, "enableDoubleTapDetection");
+		scrollingScreen.addOption(miscOptions.EnableDoubleTap, "enableDoubleTapDetection");
 
 		final ZLPreferenceSet volumeKeysPreferences = new ZLPreferenceSet();
 		scrollingScreen.addPreference(new ZLCheckBoxPreference(
@@ -584,11 +582,11 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 				));
 				dictionaryScreen.addPreference(new ZLBooleanPreference(
 					PreferenceActivity.this,
-					FBReaderApp.NavigateAllWordsOption,
+					miscOptions.NavigateAllWords,
 					dictionaryScreen.Resource,
 					"navigateOverAllWords"
 				));
-				dictionaryScreen.addOption(FBReaderApp.WordTappingActionOption, "tappingAction");
+				dictionaryScreen.addOption(miscOptions.WordTappingAction, "tappingAction");
 				dictionaryScreen.addPreference(targetLanguagePreference);
 				targetLanguagePreference.setEnabled(
 					DictionaryUtil.getCurrentDictionaryInfo(true).SupportsTargetLanguageSetting
@@ -596,7 +594,6 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			}
 		});
 
-		final ImageOptions imageOptions = FBReaderApp.ImageOptions;
 		final Screen imagesScreen = createPreferenceScreen("images");
 		imagesScreen.addOption(imageOptions.TapAction, "tappingAction");
 		imagesScreen.addOption(imageOptions.FitToScreen, "fitImagesToScreen");
