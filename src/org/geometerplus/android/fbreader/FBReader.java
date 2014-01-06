@@ -297,7 +297,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 					action.run();
 				}
 				hideBars();
-				if (getZLibrary().isYotaPhone()) {
+				if (getZLibrary().getDevice() == ZLAndroidLibrary.Device.YOTA_PHONE) {
 					refreshYotaScreen();
 				}
 			}
