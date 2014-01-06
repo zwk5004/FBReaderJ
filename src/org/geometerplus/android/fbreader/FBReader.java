@@ -939,6 +939,15 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		return true;
 	}
 
+	protected void onPluginAbsent(long bookId) {
+		myFBReaderApp.Model = null;
+		getCollection().bindToService(this, new Runnable() {
+			public void run() {
+				myFBReaderApp.openBook(myFBReaderApp.Collection.getRecentBook(0), null, null);
+			}
+		});
+	}
+
 	private void setStatusBarVisibility(boolean visible) {
 		final ZLAndroidLibrary zlibrary = getZLibrary();
 		if (zlibrary.getDevice() != ZLAndroidLibrary.Device.KINDLE_FIRE &&
@@ -1022,15 +1031,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			view.setText(title);
 			view.postInvalidate();
 		}
-	}
-
-	protected void onPluginAbsent(long bookId) {
-		myFBReaderApp.Model = null;
-		getCollection().bindToService(this, new Runnable() {
-			public void run() {
-				myFBReaderApp.openBook(myFBReaderApp.Collection.getRecentBook(0), null, null);
-			}
-		});
 	}
 
 	@Override
