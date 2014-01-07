@@ -31,6 +31,10 @@ public abstract class Paths {
 		return Environment.getExternalStorageDirectory().getPath();
 	}
 
+	public static ZLStringOption TempDirectoryOption() {
+		return new ZLStringOption("Files", "TempDirectory", cardDirectory() + "/Temp");
+	}
+
 	private static String defaultBookDirectory() {
 		return cardDirectory() + "/Books";
 	}

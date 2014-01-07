@@ -80,6 +80,7 @@
 				<data android:pathPattern=".*\\.prc"/>
 				<data android:pathPattern=".*\\.txt"/>
 				<data android:pathPattern=".*\\.rtf"/>
+				<data android:pathPattern=".*\\.pdf"/>
 			</intent-filter>
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW"/>
@@ -92,6 +93,7 @@
 				<data android:pathPattern=".*\\.prc"/>
 				<data android:pathPattern=".*\\.txt"/>
 				<data android:pathPattern=".*\\.rtf"/>
+				<data android:pathPattern=".*\\.pdf"/>
 			</intent-filter>
 			<intent-filter>
 				<action android:name="android.intent.action.VIEW"/>
@@ -110,13 +112,27 @@
 				<data android:mimeType="application/x-fictionbook+xml"/>
 				<data android:mimeType="application/x-fictionbook"/>
 				<data android:mimeType="text/plain"/>
+				<data android:mimeType="application/pdf"/>
 			</intent-filter>
 			<intent-filter>
 				<action android:name="android.intent.action.SEARCH"/>
 			</intent-filter>
 			<meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
+			<intent-filter>
+				<action android:name="android.fbreader.action.CLOSE"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+			<intent-filter>
+				<action android:name="android.fbreader.action.PLUGIN_CRASH"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
 		</activity>
-		<activity android:name="org.geometerplus.android.fbreader.CancelActivity" android:theme="@style/FBReader.Dialog" android:configChanges="orientation|keyboardHidden|screenSize"/>
+		<activity android:name="org.geometerplus.android.fbreader.CancelActivity" android:theme="@style/FBReader.Dialog" android:configChanges="orientation|keyboardHidden|screenSize">
+			<intent-filter>
+				<action android:name="android.fbreader.action.CANCEL_MENU"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+		</activity>
 		<activity android:name="org.geometerplus.android.fbreader.PluginListActivity" android:theme="@style/FBReader.Dialog" android:configChanges="orientation|keyboardHidden|screenSize"/>
 		<activity android:name="org.geometerplus.android.fbreader.style.StyleListActivity" android:theme="@style/FBReader.Dialog" android:configChanges="orientation|keyboardHidden|screenSize"/>
 		<activity android:name="org.geometerplus.android.fbreader.style.EditStyleActivity" android:theme="@style/FBReader.Dialog" android:configChanges="orientation|keyboardHidden|screenSize"/>
@@ -141,6 +157,10 @@
 		</activity>
 		<activity android:name="org.geometerplus.android.fbreader.library.LibraryActivity" android:launchMode="singleTask" android:process=":library" android:theme="@style/FBReader.Activity" android:configChanges="orientation|keyboardHidden|screenSize">
 			<meta-data android:name="android.app.default_searchable" android:value="org.geometerplus.android.fbreader.library.LibrarySearchActivity"/>
+			<intent-filter>
+				<action android:name="android.fbreader.action.OPEN_LIBRARY"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
 		</activity>
 		<activity android:name="org.geometerplus.android.fbreader.TOCActivity" android:theme="@style/FBReader.Activity" android:configChanges="orientation|keyboardHidden|screenSize"/>
 		<activity android:name="org.geometerplus.android.fbreader.BookmarksActivity" android:launchMode="singleTask" android:process=":bookmarks" android:theme="@style/FBReader.Activity" android:configChanges="orientation|keyboardHidden|screenSize">
@@ -148,9 +168,18 @@
 				<action android:name="android.intent.action.SEARCH"/>
 			</intent-filter>
 			<meta-data android:name="android.app.searchable" android:resource="@xml/searchable"/>
+			<intent-filter>
+				<action android:name="android.fbreader.action.OPEN_BOOKMARKS"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>		
 		</activity>
 		<activity android:name="org.geometerplus.android.fbreader.BookmarkEditActivity" android:theme="@style/FBReader.Dialog" android:configChanges="orientation|keyboardHidden|screenSize"/>
-		<activity android:name="org.geometerplus.android.fbreader.preferences.PreferenceActivity" android:theme="@style/FBReader.Activity" android:configChanges="orientation|keyboardHidden|screenSize"/>
+		<activity android:name="org.geometerplus.android.fbreader.preferences.PreferenceActivity" android:theme="@style/FBReader.Activity" android:configChanges="orientation|keyboardHidden|screenSize">
+			<intent-filter>
+				<action android:name="android.fbreader.action.OPEN_PREFERENCES"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+		</activity>
 		<activity android:name="org.geometerplus.android.fbreader.preferences.EditBookInfoActivity" android:process=":library" android:theme="@style/FBReader.Activity" android:configChanges="orientation|keyboardHidden|screenSize"/>
 		<activity android:name="org.geometerplus.android.fbreader.network.BookDownloader" android:process=":networkLibrary" android:theme="@android:style/Theme.NoDisplay">
 			<intent-filter>
@@ -213,6 +242,10 @@
 				<data android:host="*" android:scheme="http"/>
 				<data android:host="*" android:scheme="https"/>
 			</intent-filter>
+			<intent-filter>
+				<action android:name="android.fbreader.action.OPEN_NETWORK_CATALOG"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
 		</activity>
 		<activity android:name="org.geometerplus.android.fbreader.network.NetworkLibrarySecondaryActivity" android:process=":networkLibrary" android:theme="@style/FBReader.Activity" android:configChanges="orientation|keyboardHidden|screenSize"/>
 		<activity android:name="org.geometerplus.android.fbreader.network.AuthenticationActivity" android:process=":networkLibrary" android:theme="@style/FBReader.Dialog" android:configChanges="orientation|keyboardHidden|screenSize"/>
@@ -258,6 +291,9 @@
 			</intent-filter>
 		</receiver>
 		<activity android:name="org.geometerplus.android.fbreader.tips.TipsActivity" android:theme="@style/FBReader.Dialog" android:configChanges="orientation|keyboardHidden|screenSize"/>
+		<activity android:name="org.geometerplus.android.fbreader.preferences.activityprefs.EditableStringListActivity" android:theme="@style/FBReader.Dialog" android:windowSoftInputMode="adjustPan" android:configChanges="orientation|keyboardHidden|screenSize"/>
+		<activity android:name="org.geometerplus.android.fbreader.preferences.activityprefs.BooksDirectoryActivity" android:theme="@style/FBReader.Dialog" android:windowSoftInputMode="adjustPan" android:configChanges="orientation|keyboardHidden|screenSize"/>
+		<activity android:name="org.geometerplus.android.fbreader.preferences.activityprefs.EditableSpinnerActivity" android:theme="@style/FBReader.Dialog" android:windowSoftInputMode="adjustPan" android:configChanges="orientation|keyboardHidden|screenSize"/>
 		<activity android:name="com.paragon.dictionary.fbreader.OpenDictionaryActivity" android:theme="@style/FBReader.Transparent" android:configChanges="orientation|keyboardHidden|screenSize"/>
 		<service android:name="com.yotadevices.fbreader.FBReaderYotaService" android:exported="false" android:launchMode="singleTask"/>
 		<uses-library android:required="false" android:name="com.yotadevices.platinum"/>

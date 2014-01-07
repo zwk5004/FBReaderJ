@@ -19,18 +19,33 @@
 
 package org.geometerplus.android.fbreader.api;
 
+import java.io.ByteArrayOutputStream;
 import java.util.*;
 
+import android.annotation.TargetApi;
+import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
+import android.util.Base64;
+import android.util.Log;
 
 import org.geometerplus.zlibrary.core.library.ZLibrary;
-import org.geometerplus.zlibrary.core.options.Config;
+import org.geometerplus.zlibrary.core.application.ZLKeyBindings;
+import org.geometerplus.zlibrary.core.filesystem.ZLFile;
+import org.geometerplus.zlibrary.core.options.*;
+import org.geometerplus.zlibrary.core.resources.ZLResource;
 
 import org.geometerplus.zlibrary.text.view.*;
+import org.geometerplus.zlibrary.ui.android.R;
 
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.fbreader.*;
+
+import org.geometerplus.android.fbreader.MenuItemData;
+import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 
 public class ApiServerImplementation extends ApiInterface.Stub implements Api, ApiMethods {
 	public static void sendEvent(ContextWrapper context, String eventType) {
@@ -38,6 +53,16 @@ public class ApiServerImplementation extends ApiInterface.Stub implements Api, A
 			new Intent(ApiClientImplementation.ACTION_API_CALLBACK)
 				.putExtra(ApiClientImplementation.EVENT_TYPE, eventType)
 		);
+	}
+
+	private Context myContext;
+	private BookCollectionShadow myCollection;
+	private ZLKeyBindings myBindings;
+
+	public ApiServerImplementation(Context c, BookCollectionShadow bcs) {
+		myContext = c;
+		myCollection = bcs;
+		myBindings = new ZLKeyBindings();
 	}
 
 	private volatile FBReaderApp myReader;
@@ -218,10 +243,28 @@ public class ApiServerImplementation extends ApiInterface.Stub implements Api, A
 				case DELETE_ZONEMAP:
 					deleteZoneMap(((ApiObject.String)parameters[0]).Value);
 					return ApiObject.Void.Instance;
+				case SET_STORED_POSITION:
+					storeTextPosition(((ApiObject.String)parameters[0]).Value, (TextPosition)parameters[1]);
+					return ApiObject.Void.Instance;
+				case GET_RESOURCE_VALUE:
+					return ApiObject.envelope(getResourceValue(((ApiObject.String)parameters[0]).Value));
+				case SAVE_BOOKMARK:
+					saveBookmark(((ApiObject.String)parameters[0]).Value);
+					return ApiObject.Void.Instance;
+				case ADD_BOOK_TO_RECENT:
+					addBookToRecent(((ApiObject.String)parameters[0]).Value);
+					return ApiObject.Void.Instance;
+				case GET_MENU_TEXT:
+					return ApiObject.envelope(getMenuText(((ApiObject.String)parameters[0]).Value));
+				case GET_MENU_ICON:
+					return ApiObject.envelope(getMenuIcon(((ApiObject.String)parameters[0]).Value));
+				case GET_MENU_TYPE:
+					return ApiObject.envelope(getMenuType(((ApiObject.String)parameters[0]).Value));
 				default:
 					return unsupportedMethodError(method);
 			}
 		} catch (Throwable e) {
+			e.printStackTrace();
 			return new ApiObject.Error("Exception in method " + method + ": " + e);
 		}
 	}
@@ -256,6 +299,10 @@ public class ApiServerImplementation extends ApiInterface.Stub implements Api, A
 				case GET_PARAGRAPH_WORD_INDICES:
 					return ApiObject.envelopeIntegerList(getParagraphWordIndices(
 						((ApiObject.Integer)parameters[0]).Value
+					));
+				case GET_MENU_CHILDREN:
+					return ApiObject.envelopeStringList(getMenuChildren(
+						((ApiObject.String)parameters[0]).Value
 					));
 				default:
 					return Collections.<ApiObject>singletonList(unsupportedMethodError(method));
@@ -299,7 +346,7 @@ public class ApiServerImplementation extends ApiInterface.Stub implements Api, A
 	}
 
 	public void setOptionValue(String group, String name, String value) {
-		// TODO: implement
+		new ZLStringOption(group, name, null).setValue(value);
 	}
 
 	public String getBookLanguage() {
@@ -522,8 +569,7 @@ public class ApiServerImplementation extends ApiInterface.Stub implements Api, A
 	}
 
 	public String getKeyAction(int key, boolean longPress) {
-		// TODO: implement
-		return null;
+		return myBindings.getBinding(key, longPress);
 	}
 
 	public void setKeyAction(int key, boolean longPress, String action) {
@@ -570,11 +616,94 @@ public class ApiServerImplementation extends ApiInterface.Stub implements Api, A
 
 	public String getTapActionByCoordinates(String name, int x, int y, int width, int height, boolean singleTap) {
 		return TapZoneMap.zoneMap(name).getActionByCoordinates(
-			x, y, width, height, singleTap ? TapZoneMap.Tap.singleNotDoubleTap : TapZoneMap.Tap.doubleTap
+			x, y, width, height, singleTap ? TapZoneMap.Tap.singleTap : TapZoneMap.Tap.doubleTap
 		);
 	}
 
 	public void setTapZoneAction(String name, int h, int v, boolean singleTap, String action) {
 		TapZoneMap.zoneMap(name).setActionForZone(h, v, singleTap, action);
+	}
+
+	public void storeTextPosition(final String file, TextPosition pos) {
+		Log.d("api", "set position of " + file);
+		Log.d("api", "setting: " + Integer.toString(pos.ParagraphIndex));
+		final ZLTextPosition res = new ZLTextFixedPosition(pos.ParagraphIndex, pos.ElementIndex, pos.CharIndex);
+		myCollection.bindToService(myContext, new Runnable() {
+			@Override
+			public void run() {
+				myCollection.storePosition(myCollection.getBookByFile(ZLFile.createFileByPath(file)).getId(), res);
+			}
+		});
+	}
+
+	public String getResourceValue(String s) {
+		String[] l = s.split("/");
+		ZLResource r = ZLResource.resource(l[0]);
+		for (int i = 1; i < l.length; ++i) {
+			r = r.getResource(l[i]);
+		}
+		return r.getValue();
+	}
+
+	public void saveBookmark(final String s) {
+		myCollection.bindToService(myContext, new Runnable() {
+			@Override
+			public void run() {
+				myCollection.saveBookmark(SerializerUtil.deserializeBookmark(s));
+			}
+		});
+	}
+
+	public void addBookToRecent(final String s) {
+		myCollection.bindToService(myContext, new Runnable() {
+			@Override
+			public void run() {
+				myCollection.addBookToRecentList(SerializerUtil.deserializeBook(s));
+			}
+		});
+	}
+
+	public List<String> getMenuChildren(String code) {
+		MenuItemData root = MenuItemData.getRoot();
+		MenuItemData cur = root.findByCode(code);
+		Log.d("gsdfgvbdf", code);
+		ArrayList<String> res = new ArrayList<String>();
+		for (MenuItemData el : cur.Children) {
+			Log.d("gsdfgvbdf", el.Code);
+			res.add(el.Code);
+		}
+		return res;
+	}
+
+	public String getMenuText(String code) {
+		MenuItemData root = MenuItemData.getRoot();
+		MenuItemData cur = root.findByCode(code);
+		return ZLResource.resource("menu").getResource(cur.Code).getValue();
+	}
+
+	public String getMenuType(String code) {
+		MenuItemData root = MenuItemData.getRoot();
+		MenuItemData cur = root.findByCode(code);
+		return cur.Type.name();
+	}
+
+	@TargetApi(Build.VERSION_CODES.FROYO)
+	public String getMenuIcon(String code) {
+		MenuItemData root = MenuItemData.getRoot();
+		MenuItemData cur = root.findByCode(code);
+		Integer id = cur.IconId;
+		if (id == null) {
+			return null;
+		}
+		try{
+			Bitmap bm = BitmapFactory.decodeResource(myContext.getResources(), id);
+			ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			bm.compress(Bitmap.CompressFormat.PNG, 100, baos); //bm is the bitmap object
+			byte[] b = baos.toByteArray();
+			return Base64.encodeToString(b, Base64.DEFAULT);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 }

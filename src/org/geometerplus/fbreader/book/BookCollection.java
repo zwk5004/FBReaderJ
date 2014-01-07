@@ -358,8 +358,19 @@ public class BookCollection extends AbstractBookCollection {
 	}
 
 	public Book getRecentBook(int index) {
-		List<Long> recentIds = myDatabase.loadRecentBookIds();
-		return recentIds.size() > index ? getBookById(recentIds.get(index)) : null;
+		final List<Long> recentIds = myDatabase.loadRecentBookIds();
+		for (Long id : recentIds) {
+			if (index <= 0) {
+				try {
+					if (PluginCollection.Instance().getPlugin(getBookById(id).File).type() != FormatPlugin.Type.EXTERNAL) {
+						return getBookById(id);
+					}
+				} catch (NullPointerException e) {
+				}
+			}
+			--index;
+		}
+		return null;
 	}
 
 	public void addBookToRecentList(Book book) {

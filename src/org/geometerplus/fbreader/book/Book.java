@@ -22,12 +22,18 @@ package org.geometerplus.fbreader.book;
 import java.lang.ref.WeakReference;
 import java.math.BigDecimal;
 import java.util.*;
+import java.io.ByteArrayInputStream;
 
+import org.geometerplus.zlibrary.core.application.ZLApplication;
 import org.geometerplus.zlibrary.core.filesystem.*;
+import org.geometerplus.zlibrary.core.filetypes.FileType;
+import org.geometerplus.zlibrary.core.filetypes.FileTypeCollection;
 import org.geometerplus.zlibrary.core.image.ZLImage;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.util.MiscUtil;
 import org.geometerplus.zlibrary.core.util.RationalNumber;
+import org.geometerplus.zlibrary.core.xml.ZLStringMap;
+import org.geometerplus.zlibrary.core.xml.ZLXMLReaderAdapter;
 
 import org.geometerplus.fbreader.Paths;
 import org.geometerplus.fbreader.bookmodel.BookReadingException;
@@ -137,6 +143,7 @@ public class Book extends TitledEntity {
 	}
 
 	private void readMetaInfo(FormatPlugin plugin) throws BookReadingException {
+		String oldxml = SerializerUtil.serialize(this);
 		myEncoding = null;
 		myLanguage = null;
 		setTitle(null);
@@ -147,14 +154,26 @@ public class Book extends TitledEntity {
 
 		myIsSaved = false;
 
-		plugin.readMetaInfo(this);
+		final FileType fileType = FileTypeCollection.Instance.typeForFile(File);
+		final FormatPlugin fplugin = PluginCollection.Instance().getPlugin(fileType, FormatPlugin.Type.PLUGIN);
+		if (fplugin != null) {
+			try {
+				String xml = MetaInfoUtil.PMIReader.readMetaInfo(oldxml, ((PluginFormatPlugin)fplugin).getPackage());
+				Book book = SerializerUtil.deserializeBook(xml);
+				updateFrom(book);
+			} catch (NullPointerException e) {
+				e.printStackTrace();
+			}
+		} else {
+			plugin.readMetaInfo(this);
+		}
 		if (myUids == null || myUids.isEmpty()) {
 			plugin.readUids(this);
 		}
 
 		if (isTitleEmpty()) {
 			final String fileName = File.getShortName();
-			final int index = fileName.lastIndexOf('.');
+			final int index = (plugin.type() == FormatPlugin.Type.EXTERNAL ? -1 : fileName.lastIndexOf('.'));
 			setTitle(index > 0 ? fileName.substring(0, index) : fileName);
 		}
 		final String demoPathPrefix = Paths.mainBookDirectory() + "/Demos/";
@@ -188,6 +207,13 @@ public class Book extends TitledEntity {
 
 	public List<Author> authors() {
 		return (myAuthors != null) ? Collections.unmodifiableList(myAuthors) : Collections.<Author>emptyList();
+	}
+
+	public void setAuthors(List<Author> list) {
+		myAuthors = null;
+		for (Author s : list) {
+			addAuthor(s.DisplayName, s.SortKey);
+		}
 	}
 
 	void addAuthorWithNoCheck(Author author) {
@@ -244,7 +270,7 @@ public class Book extends TitledEntity {
 			}
 		}
 
-		addAuthor(new Author(strippedName, strippedKey));
+		addAuthor(new Author(strippedName, strippedKey.toLowerCase()));
 	}
 
 	public long getId() {
@@ -429,7 +455,7 @@ public class Book extends TitledEntity {
 			myIsSaved = false;
 		}
 	}
-	
+
 	public void setProgressWithNoCheck(RationalNumber progress) {
 		myProgress = progress;
 	}
@@ -551,7 +577,21 @@ public class Book extends TitledEntity {
 		}
 		ZLImage image = null;
 		try {
-			image = getPlugin().readCover(File);
+			final FileType fileType = FileTypeCollection.Instance.typeForFile(File);
+			final FormatPlugin plugin = PluginCollection.Instance().getPlugin(fileType, FormatPlugin.Type.PLUGIN);
+			if (plugin != null) {
+				try {
+					image = new PluginImage(File, ((PluginFormatPlugin)plugin).getPackage());
+					if (image != null) {
+						myCover = new WeakReference<ZLImage>(image);
+					}
+					return image;
+				} catch (NullPointerException e) {
+					e.printStackTrace();
+				}
+			} else {
+				image = getPlugin().readCover(File);
+			}
 		} catch (BookReadingException e) {
 			// ignore
 		}

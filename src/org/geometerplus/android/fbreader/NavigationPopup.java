@@ -19,7 +19,13 @@
 
 package org.geometerplus.android.fbreader;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.text.InputFilter;
+import android.text.InputType;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 
 import org.geometerplus.zlibrary.core.resources.ZLResource;
@@ -37,6 +43,7 @@ final class NavigationPopup {
 	private ZLTextWordCursor myStartPosition;
 	private final FBReaderApp myFBReader;
 	private Button myResetButton;
+	private Button myEnterButton;
 
 	NavigationPopup(FBReaderApp fbReader) {
 		myFBReader = fbReader;
@@ -119,8 +126,47 @@ final class NavigationPopup {
 				update();
 			}
 		});
+		myEnterButton = (Button)layout.findViewById(R.id.navigation_enter_button);
+		myEnterButton.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				AlertDialog.Builder builder = new AlertDialog.Builder(myWindow.getActivity());
+				final EditText input = new EditText(myWindow.getActivity());
+				input.setInputType(InputType.TYPE_CLASS_NUMBER);
+				input.setFilters(new InputFilter[] {
+					new InputFilterMinMax(0, myFBReader.getTextView().pagePosition().Total)
+				});
+				input.setText(Integer.toString(myFBReader.getTextView().pagePosition().Current));
+				builder.setView(input);
+				builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						int num = Integer.parseInt(input.getText().toString());
+						if (num > 0 && num <= myFBReader.getTextView().pagePosition().Total) {
+							if (num == 1) {
+								myFBReader.getTextView().gotoHome();
+							} else {
+								myFBReader.getTextView().gotoPage(num);
+							}
+							myFBReader.getViewWidget().reset();
+							myFBReader.getViewWidget().repaint();
+							setupNavigation();
+						}
+						dialog.cancel();
+					}
+				});
+				builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.cancel();
+					}
+				});
+				builder.show();
+			}
+		});
+
 		final ZLResource buttonResource = ZLResource.resource("dialog").getResource("button");
 		myResetButton.setText(buttonResource.getResource("resetPosition").getValue());
+		myEnterButton.setText(buttonResource.getResource("enterPosition").getValue());
 
 		myWindow.addView(layout);
 	}

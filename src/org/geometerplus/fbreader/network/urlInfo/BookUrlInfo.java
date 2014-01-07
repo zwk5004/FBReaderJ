@@ -23,7 +23,10 @@ import java.io.File;
 
 import android.net.Uri;
 
+import org.geometerplus.zlibrary.core.util.MimeType;
+
 import org.geometerplus.fbreader.Paths;
+import org.geometerplus.zlibrary.core.filetypes.*;
 
 import org.geometerplus.zlibrary.core.util.MimeType;
 
@@ -33,23 +36,35 @@ public class BookUrlInfo extends UrlInfo {
 	private static final long serialVersionUID = -893514485257788221L;
 
 	public interface Format {
-		int NONE = 0;
-		int MOBIPOCKET = 1;
-		int FB2 = 2;
-		int FB2_ZIP = 3;
-		int EPUB = 4;
+		String NONE = "null.type";
+		String MOBIPOCKET = "Mobipocket";
+		String FB2_ZIP = "fb2.zip";
+		String FB2 = "fb2";
+		String EPUB = "ePub";
 	}
 
-	public final int BookFormat;
+	public static int getPriority(String type) {
+		if (Format.NONE.equals(type)) return -1;
+		if (Format.MOBIPOCKET.equals(type)) return 1;
+		if (Format.FB2.equals(type)) return 2;
+		if (Format.EPUB.equals(type)) return 3;
+		if (Format.FB2_ZIP.equals(type)) return 4;
+		return 0;
+	}
 
-	public BookUrlInfo(Type type, int format, String url, MimeType mime) {
+	public final String BookFormat;
+
+	public BookUrlInfo(Type type, String format, String url, MimeType mime) {
 		super(type, url, mime);
 		BookFormat = format;
 	}
 
 	private static final String TOESCAPE = "<>:\"|?*\\";
 
-	public static String makeBookFileName(String url, int format, Type resolvedReferenceType) {
+	public static String makeBookFileName(String url, FileType fileType, MimeType mimeType, Type resolvedReferenceType) {
+		return makeBookFileName(url, fileType.defaultExtension(mimeType), resolvedReferenceType);
+	}
+	public static String makeBookFileName(String url, String extension, Type resolvedReferenceType) {
 		final Uri uri = Uri.parse(url);
 
 		String host = uri.getHost();
@@ -91,20 +106,7 @@ public class BookUrlInfo extends UrlInfo {
 		}
 
 		String ext = null;
-		switch (format) {
-			case Format.EPUB:
-				ext = ".epub";
-				break;
-			case Format.MOBIPOCKET:
-				ext = ".mobi";
-				break;
-			case Format.FB2:
-				ext = ".fb2";
-				break;
-			case Format.FB2_ZIP:
-				ext = ".fb2.zip";
-				break;
-		}
+		ext = "." + extension;
 
 		if (ext == null) {
 			int j = path.indexOf(".", nameIndex); // using not lastIndexOf to preserve extensions like `.fb2.zip`

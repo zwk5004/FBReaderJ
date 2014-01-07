@@ -108,7 +108,7 @@ public class BookDownloaderService extends Service {
 		final int notifications = intent.getIntExtra(SHOW_NOTIFICATIONS_KEY, 0);
 
 		final String url = uri.toString();
-		final int bookFormat = intent.getIntExtra(BOOK_FORMAT_KEY, BookUrlInfo.Format.NONE);
+		final String bookFormat = intent.getStringExtra(BOOK_FORMAT_KEY);
 		UrlInfo.Type referenceType = (UrlInfo.Type)intent.getSerializableExtra(REFERENCE_TYPE_KEY);
 		if (referenceType == null) {
 			referenceType = UrlInfo.Type.Book;
@@ -192,6 +192,7 @@ public class BookDownloaderService extends Service {
 		if (file != null) {
 			intent.setAction(Intent.ACTION_VIEW).setData(Uri.fromFile(file));
 		}
+		intent.putExtra("KILL_PLUGIN", true);
 		return intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
 	}
 

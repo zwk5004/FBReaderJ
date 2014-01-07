@@ -42,28 +42,62 @@ import org.geometerplus.fbreader.bookmodel.FBTextKind;
 import org.geometerplus.fbreader.fbreader.*;
 import org.geometerplus.fbreader.fbreader.options.*;
 import org.geometerplus.fbreader.tips.TipsManager;
+import org.geometerplus.fbreader.formats.Formats;
 
 import org.geometerplus.android.fbreader.DictionaryUtil;
 import org.geometerplus.android.fbreader.FBReader;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
+import org.geometerplus.android.fbreader.preferences.activityprefs.*;
 
 public class PreferenceActivity extends ZLPreferenceActivity {
+	private final List<String> myRootpaths = Arrays.asList(Paths.cardDirectory() + "/");
+
+	private final HashMap<Integer,ZLActivityPreference> myActivityPrefs =
+		new HashMap<Integer,ZLActivityPreference>();
+
 	public PreferenceActivity() {
 		super("Preferences");
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		ZLActivityPreference p = myActivityPrefs.get(requestCode);
+		if (resultCode == RESULT_OK) {
+			p.setValue(data);
+		}
+	}
+
+	private static class OptionHolder implements ZLActivityPreference.ListHolder {
+		private ZLStringListOption myOption;
+
+		public OptionHolder(ZLStringListOption option) {
+			myOption = option;
+		}
+
+		public List<String> getValue() {
+			return myOption.getValue();
+		}
+
+		public List<String> getDisplayValue() {
+			return getValue();
+		}
+
+		public void setValue(List<String> l) {
+			myOption.setValue(l);
+		}
 	}
 
 	@Override
 	protected void init(Intent intent) {
 		setResult(FBReader.RESULT_REPAINT);
 
-		final FBReaderApp fbReader = (FBReaderApp)FBReaderApp.Instance();
 		final ViewOptions viewOptions = new ViewOptions();
 		final MiscOptions miscOptions = new MiscOptions();
-		final FooterOptions footerOptions = fbReader.FooterOptions;
+		final FooterOptions footerOptions = FBReaderApp.FooterOptions;
 		final PageTurningOptions pageTurningOptions = new PageTurningOptions();
 		final ImageOptions imageOptions = new ImageOptions();
-		final ColorProfile profile = fbReader.getColorProfile();
-		final ZLTextStyleCollection collection = fbReader.TextStyleCollection;
+		final ColorProfile profile = FBReaderApp.getColorProfile();
+		final ZLTextStyleCollection collection = FBReaderApp.TextStyleCollection;
 		final ZLKeyBindings keyBindings = new ZLKeyBindings();
 
 		final ZLAndroidLibrary androidLibrary = (ZLAndroidLibrary)ZLAndroidLibrary.Instance();
@@ -73,27 +107,35 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			String.valueOf(new DecimalFormatSymbols(Locale.getDefault()).getDecimalSeparator());
 
 		final Screen directoriesScreen = createPreferenceScreen("directories");
-		directoriesScreen.addPreference(new ZLStringListOptionPreference(
-			this, Paths.BookPathOption(), directoriesScreen.Resource, "books"
-		) {
-			protected void setValue(String value) {
-				super.setValue(value);
+		directoriesScreen.addOption(Paths.TempDirectoryOption(), "temp");
+		directoriesScreen.addPreference(new ZLBookDirActivityPreference(
+			this, new OptionHolder(Paths.BookPathOption()) {
+				@Override
+				public void setValue(List<String> value) {
+					super.setValue(value);
 
-				final BookCollectionShadow collection = new BookCollectionShadow();
-				collection.bindToService(PreferenceActivity.this, new Runnable() {
-					public void run() {
-						collection.reset(false);
-						collection.unbind();
-					}
-				});
-			}
-		});
-		directoriesScreen.addPreference(new ZLStringListOptionPreference(
-			this, Paths.FontPathOption(), directoriesScreen.Resource, "fonts"
+					final BookCollectionShadow collection = new BookCollectionShadow();
+					collection.bindToService(PreferenceActivity.this, new Runnable() {
+						public void run() {
+							collection.reset(false);
+							collection.unbind();
+						}
+					});
+				}
+			},
+			myActivityPrefs, myRootpaths,
+			directoriesScreen.Resource, "bookPath"
 		));
-		directoriesScreen.addPreference(new ZLStringListOptionPreference(
-			this, Paths.WallpaperPathOption(), directoriesScreen.Resource, "wallpapers"
-		));
+		final ZLActivityPreference fontDirPreference = new ZLSimpleActivityPreference(
+			this, new OptionHolder(Paths.FontPathOption()), myActivityPrefs, myRootpaths,
+			directoriesScreen.Resource, "fontPath"
+		);
+		directoriesScreen.addPreference(fontDirPreference);
+		final ZLActivityPreference wallpaperDirPreference = new ZLSimpleActivityPreference(
+			this, new OptionHolder(Paths.WallpaperPathOption()), myActivityPrefs, myRootpaths,
+			directoriesScreen.Resource, "wallpaperPath"
+		);
+		directoriesScreen.addPreference(wallpaperDirPreference);
 
 		final Screen appearanceScreen = createPreferenceScreen("appearance");
 		appearanceScreen.addPreference(new LanguagePreference(
@@ -175,10 +217,14 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 		fontPropertiesScreen.addOption(ZLAndroidPaintContext.SubpixelOption, "subpixel");
 
 		final ZLTextBaseStyle baseStyle = collection.getBaseStyle();
-		textScreen.addPreference(new FontOption(
+
+		final FontOption fontOption = new FontOption(
 			this, textScreen.Resource, "font",
-			baseStyle.FontFamilyOption, false
-		));
+			baseStyle.FontFamilyOption, false);
+
+		textScreen.addPreference(fontOption);
+		fontDirPreference.setBoundPref(fontOption);
+
 		textScreen.addPreference(new ZLIntegerRangePreference(
 			this, textScreen.Resource.getResource("fontSize"),
 			baseStyle.FontSizeOption
@@ -338,6 +384,7 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			}
 		};
 		colorsScreen.addPreference(wallpaperPreference);
+		wallpaperDirPreference.setBoundPref(wallpaperPreference);
 
 		bgPreferences.add(
 			colorsScreen.addOption(profile.BackgroundOption, "backgroundColor")
@@ -562,6 +609,12 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			this, cancelMenuScreen.Resource, "backKeyLongPressAction",
 			keyBindings.getOption(KeyEvent.KEYCODE_BACK, true), backKeyLongPressActions
 		));
+
+		final Screen formatScreen = createPreferenceScreen("externalFormats");
+		for (String format : Formats.getPredefinedFormats()) {
+			formatScreen.addPreference(new FormatPreference(this, format, formatScreen, formatScreen.Resource, "format"));
+		}
+//		formatScreen.addPreference(new AddFormatPreference(this, formatScreen, formatScreen.Resource, "format"));
 
 		final Screen tipsScreen = createPreferenceScreen("tips");
 		tipsScreen.addOption(TipsManager.Instance().ShowTipsOption, "showTips");
