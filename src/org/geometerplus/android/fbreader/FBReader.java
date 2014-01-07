@@ -1153,7 +1153,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 	@Override
 	public ZLViewWidget getViewWidget() {
-		if (myFBReaderApp.MiscOptions.YotaDrawOnBackScreen.getValue()) {
+		if (FBReaderApp.MiscOptions.YotaDrawOnBackScreen.getValue()) {
 			if (com.yotadevices.fbreader.FBReaderYotaService.Widget != null) {
 				return com.yotadevices.fbreader.FBReaderYotaService.Widget;
 			}
