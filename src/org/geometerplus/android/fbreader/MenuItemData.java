@@ -21,10 +21,13 @@ package org.geometerplus.android.fbreader;
 
 import java.util.ArrayList;
 
-import org.geometerplus.fbreader.fbreader.ActionCode;
 import org.geometerplus.zlibrary.core.library.ZLibrary;
 import org.geometerplus.zlibrary.ui.android.R;
 import org.geometerplus.zlibrary.ui.android.library.ZLAndroidLibrary;
+
+import org.geometerplus.fbreader.fbreader.ActionCode;
+
+import org.geometerplus.android.util.DeviceType;
 
 public class MenuItemData {
 	public static enum MenuType {
@@ -63,7 +66,7 @@ public class MenuItemData {
 		MenuItemData root = new MenuItemData(MenuType.SUBMENU, "root", null);
 		root.Children.add(new MenuItemData(MenuType.ACTION, ActionCode.SHOW_LIBRARY, R.drawable.ic_menu_library));
 		final ZLAndroidLibrary zlibrary = (ZLAndroidLibrary)ZLAndroidLibrary.Instance();
-		if (zlibrary.getDevice() == ZLAndroidLibrary.Device.YOTA_PHONE) {
+		if (DeviceType.Instance() == DeviceType.YOTA_PHONE) {
 			root.Children.add(new MenuItemData(MenuType.ACTION, ActionCode.YOTA_SWITCH_TO_BACK_SCREEN, R.drawable.ic_menu_p2b));
 			//root.Children.add(new MenuItemData(MenuType.ACTION, ActionCode.YOTA_SWITCH_TO_FRONT_SCREEN, R.drawable.ic_menu_p2b));
 		}
