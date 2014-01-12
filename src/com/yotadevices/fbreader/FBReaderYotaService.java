@@ -9,6 +9,8 @@ package com.yotadevices.fbreader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.*;
 import android.graphics.*;
 import android.net.Uri;
@@ -37,6 +39,7 @@ import org.geometerplus.zlibrary.ui.android.library.UncaughtExceptionHandler;
 import org.geometerplus.zlibrary.ui.android.library.ZLAndroidLibrary;
 import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
 import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
+import org.geometerplus.android.fbreader.FBReader;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.fbreader.ActionCode;
@@ -60,13 +63,37 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	private final ZLKeyBindings myBindings = new ZLKeyBindings();
 	private volatile boolean myBackScreenIsActive;
 	private Book myCurrentBook;
-	
+
 	private FBReaderApp myFBReaderApp;
+
+	int ONGOING_NOTIFICATION_ID = 1;
+	
+	//TODO: FIXME:
+	public void startForeground() {
+		Notification notification = new Notification.Builder(this)
+        .setContentTitle("TEST1")
+        .setContentText("TEST2")
+        .setSmallIcon(R.drawable.fbreader_bw)
+        .build();
+		Intent notificationIntent = new Intent(this, FBReader.class);
+		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+		notification.setLatestEventInfo(this, "test1",
+				"test2", pendingIntent);
+		startForeground(ONGOING_NOTIFICATION_ID, notification);
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(this));
+	}
+
+	public FBReaderYotaService() {
+		super();
+		setIntentRedelivery(true);
+	}
+	
+	private boolean myNeedToOpenBook = false;
+	private Book myBookToOpen = null;
 
 	@Override
 	public void onBSCreate() {
 		super.onBSCreate();
-		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(this));
 		myFBReaderApp = (FBReaderApp)FBReaderApp.Instance();
 		if (myFBReaderApp == null) {
 			myFBReaderApp = new FBReaderApp(new BookCollectionShadow());
@@ -74,7 +101,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
 			@Override
 			public void run() {
-				myFBReaderApp.openBook(myFBReaderApp.Collection.getRecentBook(0), null, null);
+//				myFBReaderApp.openBook(myFBReaderApp.Collection.getRecentBook(0), null, null);
 			}});
 		myFBReaderApp.setWindow(this);
 		myFBReaderApp.initWindow();
@@ -86,17 +113,22 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		String screen = "Yota";
 		FBReaderApp.TextStyleCollection = new ZLTextStyleCollection(screen);
 		FBReaderApp.FooterOptions = new FooterOptions(screen);
+		myNeedToOpenBook = true;
+		myBookToOpen = null;
 		initBookView(false);
-	}
-
-	public FBReaderYotaService() {
-		super();
-		setIntentRedelivery(true);
 	}
 
 	@Override
 	public void onBSResume() {
 		super.onBSResume();
+		if (myNeedToOpenBook) {
+			((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
+				@Override
+				public void run() {
+					myFBReaderApp.openBook(myBookToOpen, null, null);
+				}
+			});
+		}
 		initBookView(true);
 	}
 
@@ -105,14 +137,14 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		Widget = null;
 		super.onBSDestroy();
 	}
-	
+
 	@Override
 	public IBinder onBind(Intent intent) {
 		return myWidgetProxy;
 	}
-	
+
 	private WidgetProxy myWidgetProxy = new WidgetProxy();
-	
+
 	public class WidgetProxy extends WidgetInterface.Stub {
 		@Override
 		public void reset() throws RemoteException {
@@ -134,6 +166,16 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 			AndroidFontUtil.clearFontCache();
 			Book book1 = SerializerUtil.deserializeBook(book);
 			myFBReaderApp.onBookUpdated(book1);
+		}
+		
+		@Override
+		public void startForeground() throws RemoteException {
+			FBReaderYotaService.this.startForeground();
+		}
+
+		@Override
+		public void stopForeground() throws RemoteException {
+			FBReaderYotaService.this.stopForeground(true);
 		}
 	}
 
@@ -268,6 +310,8 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		}
 		if (intent.hasExtra(KEY_CURRENT_BOOK)) {
 			myCurrentBook = SerializerUtil.deserializeBook(intent.getStringExtra(KEY_CURRENT_BOOK));
+			myNeedToOpenBook = true;
+			myBookToOpen = myCurrentBook;
 		}
 
 		initBookView(true);
@@ -316,9 +360,9 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		exception.printStackTrace();
 
 		final Intent intent = new Intent(
-			"android.fbreader.action.ERROR",
-			new Uri.Builder().scheme(exception.getClass().getSimpleName()).build()
-		);
+				"android.fbreader.action.ERROR",
+				new Uri.Builder().scheme(exception.getClass().getSimpleName()).build()
+				);
 		intent.putExtra(ErrorKeys.MESSAGE, exception.getMessage());
 		final StringWriter stackTrace = new StringWriter();
 		exception.printStackTrace(new PrintWriter(stackTrace));
@@ -330,7 +374,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 				intent.putExtra("file", file.getPath());
 			}
 		}
-		*/
+		 */
 		try {
 			startActivity(intent);
 		} catch (ActivityNotFoundException e) {

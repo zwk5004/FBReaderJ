@@ -60,10 +60,10 @@ public class WidgetShadow implements ZLViewWidget, ServiceConnection {
 		} else {
 			myOnBindAction = combined(myOnBindAction, onBindAction);
 			context.bindService(
-				new Intent(context, FBReaderYotaService.class),
-				this,
-				Service.BIND_AUTO_CREATE
-			);
+					new Intent(context, FBReaderYotaService.class),
+					this,
+					Service.BIND_AUTO_CREATE
+					);
 			myContext = context;
 		}
 	}
@@ -88,7 +88,7 @@ public class WidgetShadow implements ZLViewWidget, ServiceConnection {
 			}
 		}
 	}
-	
+
 	public  void repaint() {
 		if (myInterface != null) {
 			try {
@@ -97,7 +97,7 @@ public class WidgetShadow implements ZLViewWidget, ServiceConnection {
 			}
 		}
 	}
-	
+
 	public void onPreferencesUpdate(String book) {
 		if (myInterface != null) {
 			try {
@@ -106,7 +106,25 @@ public class WidgetShadow implements ZLViewWidget, ServiceConnection {
 			}
 		}
 	}
+
+	public void stopForeground() {
+		if (myInterface != null) {
+			try {
+				myInterface.stopForeground();;
+			} catch (RemoteException e) {
+			}
+		}
+	}
 	
+	public void startForeground() {
+		if (myInterface != null) {
+			try {
+				myInterface.startForeground();;
+			} catch (RemoteException e) {
+			}
+		}
+	}
+
 	@Override
 	public void startManualScrolling(int x, int y, Direction direction) {
 		// TODO Auto-generated method stub
@@ -122,7 +140,7 @@ public class WidgetShadow implements ZLViewWidget, ServiceConnection {
 			Direction direction, int speed) {
 		// TODO Auto-generated method stub
 		Log.e("Widget", "startAnimatedScrolling1");
-		
+
 	}
 	@Override
 	public void startAnimatedScrolling(PageIndex pageIndex,

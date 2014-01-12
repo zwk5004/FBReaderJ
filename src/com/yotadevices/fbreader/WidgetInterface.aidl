@@ -8,4 +8,6 @@ interface WidgetInterface {
 	void reset();
 	void repaint();
 	void onPreferencesUpdate(String book);
+	void startForeground();
+	void stopForeground();
 }
