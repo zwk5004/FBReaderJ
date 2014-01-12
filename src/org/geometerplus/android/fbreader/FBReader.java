@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 Geometer Plus <contact@geometerplus.com>
+ * Copyright (C) 2009-2014 Geometer Plus <contact@geometerplus.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -293,15 +293,19 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		if (myBook != null) {
 			Log.d("fbreader", myBook.File.getPath());
 		}
-		myFBReaderApp.openBook(myBook, bookmark, new Runnable() {
+		Config.Instance().runOnStart(new Runnable() {
 			public void run() {
-				if (action != null) {
-					action.run();
-				}
-				hideBars();
-				if (DeviceType.Instance() == DeviceType.YOTA_PHONE) {
-					refreshYotaScreen();
-				}
+				myFBReaderApp.openBook(myBook, bookmark, new Runnable() {
+					public void run() {
+						if (action != null) {
+							action.run();
+						}
+						hideBars();
+						if (DeviceType.Instance() == DeviceType.YOTA_PHONE) {
+							refreshYotaScreen();
+						}
+					}
+				});
 			}
 		});
 	}
@@ -355,9 +359,9 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		myActionBarIsVisible = myShowActionBarFlag;
 
 		getWindow().setFlags(
-				WindowManager.LayoutParams.FLAG_FULLSCREEN,
-				myShowStatusBarFlag ? 0 : WindowManager.LayoutParams.FLAG_FULLSCREEN
-				);
+			WindowManager.LayoutParams.FLAG_FULLSCREEN,
+			myShowStatusBarFlag ? 0 : WindowManager.LayoutParams.FLAG_FULLSCREEN
+		);
 		if (!myShowActionBarFlag) {
 			requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY);
 		}
@@ -594,9 +598,9 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 					startActivity(new Intent(FBReader.this, FBReader.class));
 				}
 				getSharedPreferences("fbreader.ui", MODE_PRIVATE).edit()
-				.putBoolean("statusBar", showStatusBar)
-				.putBoolean("actionBar", showActionBar)
-				.apply();
+					.putBoolean("statusBar", showStatusBar)
+					.putBoolean("actionBar", showActionBar)
+					.commit();
 				SetScreenOrientationAction.setOrientation(FBReader.this, zlibrary.getOrientationOption().getValue());
 			}
 		});

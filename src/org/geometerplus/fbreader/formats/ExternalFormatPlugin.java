@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2007-2013 Geometer Plus <contact@geometerplus.com>
+ * Copyright (C) 2007-2014 Geometer Plus <contact@geometerplus.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -54,9 +54,9 @@ public class ExternalFormatPlugin extends FormatPlugin {
 				String filepath = f.getPath();
 				int p1 = filepath.lastIndexOf(":");
 				String filename = filepath.substring(p1 + 1);
-				final File dirFile = new File(Paths.TempDirectoryOption().getValue());
+				final File dirFile = new File(Paths.TempDirectoryOption.getValue());
 				dirFile.mkdirs();
-				String path = Paths.TempDirectoryOption().getValue() + "/" + filename;
+				String path = Paths.TempDirectoryOption.getValue() + "/" + filename;
 				OutputStream out = new FileOutputStream(path);
 
 				int read = 0;

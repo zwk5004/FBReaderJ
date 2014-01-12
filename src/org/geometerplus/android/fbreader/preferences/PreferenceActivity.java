@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2009-2013 Geometer Plus <contact@geometerplus.com>
+ * Copyright (C) 2009-2014 Geometer Plus <contact@geometerplus.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -48,6 +48,8 @@ import org.geometerplus.android.fbreader.DictionaryUtil;
 import org.geometerplus.android.fbreader.FBReader;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.android.fbreader.preferences.activityprefs.*;
+
+import org.geometerplus.android.util.DeviceType;
 
 public class PreferenceActivity extends ZLPreferenceActivity {
 	private final List<String> myRootpaths = Arrays.asList(Paths.cardDirectory() + "/");
@@ -107,9 +109,9 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			String.valueOf(new DecimalFormatSymbols(Locale.getDefault()).getDecimalSeparator());
 
 		final Screen directoriesScreen = createPreferenceScreen("directories");
-		directoriesScreen.addOption(Paths.TempDirectoryOption(), "temp");
+		directoriesScreen.addOption(Paths.TempDirectoryOption, "temp");
 		directoriesScreen.addPreference(new ZLBookDirActivityPreference(
-			this, new OptionHolder(Paths.BookPathOption()) {
+			this, new OptionHolder(Paths.BookPathOption) {
 				@Override
 				public void setValue(List<String> value) {
 					super.setValue(value);
@@ -127,12 +129,12 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			directoriesScreen.Resource, "bookPath"
 		));
 		final ZLActivityPreference fontDirPreference = new ZLSimpleActivityPreference(
-			this, new OptionHolder(Paths.FontPathOption()), myActivityPrefs, myRootpaths,
+			this, new OptionHolder(Paths.FontPathOption), myActivityPrefs, myRootpaths,
 			directoriesScreen.Resource, "fontPath"
 		);
 		directoriesScreen.addPreference(fontDirPreference);
 		final ZLActivityPreference wallpaperDirPreference = new ZLSimpleActivityPreference(
-			this, new OptionHolder(Paths.WallpaperPathOption()), myActivityPrefs, myRootpaths,
+			this, new OptionHolder(Paths.WallpaperPathOption), myActivityPrefs, myRootpaths,
 			directoriesScreen.Resource, "wallpaperPath"
 		);
 		directoriesScreen.addPreference(wallpaperDirPreference);
@@ -204,6 +206,30 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			appearanceScreen.addOption(androidLibrary.EnableFullscreenModeOption, "fullscreenMode");
 		}
 		appearanceScreen.addOption(androidLibrary.DisableButtonLightsOption, "disableButtonLights");
+		
+		if (DeviceType.Instance().isEInk()) {
+			final EInkOptions einkOptions = new EInkOptions();
+			final Screen einkScreen = createPreferenceScreen("eink");
+			final ZLPreferenceSet einkPreferences = new ZLPreferenceSet();
+			
+			einkScreen.addPreference(new ZLBooleanPreference(
+				this, einkOptions.EnableFastRefresh, einkScreen.Resource, "enableFastRefresh"
+			) {
+				@Override
+				protected void onClick() {
+					super.onClick();
+					einkPreferences.setEnabled(einkOptions.EnableFastRefresh.getValue());
+				}
+			});
+	
+			final ZLIntegerRangePreference updateIntervalPreference = new ZLIntegerRangePreference(
+				this, einkScreen.Resource.getResource("interval"), einkOptions.UpdateInterval
+			);
+			einkScreen.addPreference(updateIntervalPreference);
+	
+			einkPreferences.add(updateIntervalPreference);
+			einkPreferences.setEnabled(einkOptions.EnableFastRefresh.getValue());
+		}
 
 		final Screen textScreen = createPreferenceScreen("text");
 
