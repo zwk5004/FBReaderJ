@@ -6,9 +6,14 @@
 
 package com.yotadevices.fbreader;
 
-import android.content.Context;
-import android.content.Intent;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+
+import android.content.*;
 import android.graphics.*;
+import android.net.Uri;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
@@ -16,39 +21,77 @@ import android.widget.FrameLayout;
 import com.yotadevices.sdk.*;
 import com.yotadevices.sdk.utils.EinkUtils;
 
+import org.geometerplus.zlibrary.core.application.ZLApplicationWindow;
 import org.geometerplus.zlibrary.core.application.ZLKeyBindings;
 import org.geometerplus.zlibrary.core.image.ZLImage;
 import org.geometerplus.zlibrary.core.image.ZLLoadableImage;
+import org.geometerplus.zlibrary.core.options.Config;
 import org.geometerplus.zlibrary.core.util.MiscUtil;
+import org.geometerplus.zlibrary.core.view.ZLViewWidget;
+import org.geometerplus.zlibrary.text.view.style.ZLTextStyleCollection;
 import org.geometerplus.zlibrary.ui.android.R;
+import org.geometerplus.zlibrary.ui.android.error.ErrorKeys;
 import org.geometerplus.zlibrary.ui.android.image.ZLAndroidImageData;
 import org.geometerplus.zlibrary.ui.android.image.ZLAndroidImageManager;
+import org.geometerplus.zlibrary.ui.android.library.UncaughtExceptionHandler;
+import org.geometerplus.zlibrary.ui.android.library.ZLAndroidLibrary;
+import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
 import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
+import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.fbreader.ActionCode;
+import org.geometerplus.fbreader.fbreader.FBReaderApp;
+import org.geometerplus.fbreader.fbreader.options.FooterOptions;
 import org.geometerplus.fbreader.fbreader.options.MiscOptions;
 
 /**
  * @author ASazonov
  */
-public class FBReaderYotaService extends BSActivity {
+public class FBReaderYotaService extends BSActivity implements ZLApplicationWindow {
 	public static final String KEY_BACK_SCREEN_IS_ACTIVE =
 			"com.yotadevices.fbreader.backScreenIsActive";
 	public static final String KEY_CURRENT_BOOK =
 			"com.yotadevices.fbreader.currentBook";
 
-	public static ZLAndroidWidget Widget;
+	static ZLAndroidWidget Widget;
 	private Canvas myCanvas;
 	private Bitmap myBitmap;
 
 	private final ZLKeyBindings myBindings = new ZLKeyBindings();
 	private volatile boolean myBackScreenIsActive;
 	private Book myCurrentBook;
+	
+	private FBReaderApp myFBReaderApp;
 
 	@Override
 	public void onBSCreate() {
 		super.onBSCreate();
+		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(this));
+		myFBReaderApp = (FBReaderApp)FBReaderApp.Instance();
+		if (myFBReaderApp == null) {
+			myFBReaderApp = new FBReaderApp(new BookCollectionShadow());
+		}
+		((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
+			@Override
+			public void run() {
+				myFBReaderApp.openBook(myFBReaderApp.Collection.getRecentBook(0), null, null);
+			}});
+		myFBReaderApp.setWindow(this);
+		myFBReaderApp.initWindow();
+		Config.Instance().runOnStart(new Runnable() {
+			@Override
+			public void run() {
+			}
+		});
+		String screen = "Yota";
+		FBReaderApp.TextStyleCollection = new ZLTextStyleCollection(screen);
+		FBReaderApp.FooterOptions = new FooterOptions(screen);
 		initBookView(false);
+	}
+
+	public FBReaderYotaService() {
+		super();
+		setIntentRedelivery(true);
 	}
 
 	@Override
@@ -61,6 +104,37 @@ public class FBReaderYotaService extends BSActivity {
 	public void onBSDestroy() {
 		Widget = null;
 		super.onBSDestroy();
+	}
+	
+	@Override
+	public IBinder onBind(Intent intent) {
+		return myWidgetProxy;
+	}
+	
+	private WidgetProxy myWidgetProxy = new WidgetProxy();
+	
+	public class WidgetProxy extends WidgetInterface.Stub {
+		@Override
+		public void reset() throws RemoteException {
+			if (Widget != null) {
+				AndroidFontUtil.clearFontCache();
+				Widget.reset();
+			}
+		}
+
+		@Override
+		public void repaint() throws RemoteException {
+			if (Widget != null) {
+				Widget.repaint();
+			}
+		}
+
+		@Override
+		public void onPreferencesUpdate(String book) throws RemoteException {
+			AndroidFontUtil.clearFontCache();
+			Book book1 = SerializerUtil.deserializeBook(book);
+			myFBReaderApp.onBookUpdated(book1);
+		}
 	}
 
 	private class YotaBackScreenWidget extends ZLAndroidWidget {
@@ -223,5 +297,66 @@ public class FBReaderYotaService extends BSActivity {
 		} else if (action == Constants.Gestures.GESTURES_BS_LR) {
 			Widget.turnPageStatic(false);
 		}
+	}
+
+	@Override
+	public void setWindowTitle(String title) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void runWithMessage(String key, Runnable runnable,
+			Runnable postAction) {
+		// TODO Auto-generated method stub
+		runnable.run();
+	}
+
+	@Override
+	public void processException(Exception exception) {
+		exception.printStackTrace();
+
+		final Intent intent = new Intent(
+			"android.fbreader.action.ERROR",
+			new Uri.Builder().scheme(exception.getClass().getSimpleName()).build()
+		);
+		intent.putExtra(ErrorKeys.MESSAGE, exception.getMessage());
+		final StringWriter stackTrace = new StringWriter();
+		exception.printStackTrace(new PrintWriter(stackTrace));
+		intent.putExtra(ErrorKeys.STACKTRACE, stackTrace.toString());
+		/*
+		if (exception instanceof BookReadingException) {
+			final ZLFile file = ((BookReadingException)exception).File;
+			if (file != null) {
+				intent.putExtra("file", file.getPath());
+			}
+		}
+		*/
+		try {
+			startActivity(intent);
+		} catch (ActivityNotFoundException e) {
+			// ignore
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void refresh() {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public ZLViewWidget getViewWidget() {
+		return Widget;
+	}
+
+	@Override
+	public void close() {
+		((ZLAndroidLibrary)ZLAndroidLibrary.Instance()).finish();
+	}
+
+	@Override
+	public int getBatteryLevel() {
+		// TODO Auto-generated method stub
+		return 42;
 	}
 }

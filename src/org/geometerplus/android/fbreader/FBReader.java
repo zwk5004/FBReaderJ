@@ -35,6 +35,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.yotadevices.fbreader.FBReaderYotaService;
+import com.yotadevices.fbreader.WidgetShadow;
 
 import org.geometerplus.zlibrary.core.application.ZLApplicationWindow;
 import org.geometerplus.zlibrary.core.filesystem.ZLFile;
@@ -45,27 +46,22 @@ import org.geometerplus.zlibrary.core.options.Config;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.util.MimeType;
 import org.geometerplus.zlibrary.core.view.ZLViewWidget;
-
 import org.geometerplus.zlibrary.text.view.ZLTextView;
-
 import org.geometerplus.zlibrary.ui.android.R;
 import org.geometerplus.zlibrary.ui.android.error.ErrorKeys;
 import org.geometerplus.zlibrary.ui.android.library.*;
 import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
 import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
-
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.bookmodel.BookModel;
 import org.geometerplus.fbreader.fbreader.*;
 import org.geometerplus.fbreader.fbreader.options.CancelMenuHelper;
 import org.geometerplus.fbreader.formats.*;
 import org.geometerplus.fbreader.tips.TipsManager;
-
 import org.geometerplus.android.fbreader.api.*;
 import org.geometerplus.android.fbreader.library.BookInfoActivity;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.android.fbreader.tips.TipsActivity;
-
 import org.geometerplus.android.util.UIUtil;
 
 public final class FBReader extends Activity implements ZLApplicationWindow {
@@ -449,9 +445,14 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		myFBReaderApp.addAction(ActionCode.YOTA_SWITCH_TO_BACK_SCREEN, new YotaSwitchScreenAction(this, myFBReaderApp, true));
 		myFBReaderApp.addAction(ActionCode.YOTA_SWITCH_TO_FRONT_SCREEN, new YotaSwitchScreenAction(this, myFBReaderApp, false));
 
-		if (myFBReaderApp.MiscOptions.YotaDrawOnBackScreen.getValue()) {
-			new YotaSwitchScreenAction(this, myFBReaderApp, true).run();
-		}
+		Config.Instance().runOnStart(new Runnable() {
+			@Override
+			public void run() {
+				if (FBReaderApp.MiscOptions.YotaDrawOnBackScreen.getValue()) {
+					new YotaSwitchScreenAction(FBReader.this, myFBReaderApp, true).run();
+				}
+			}
+		});
 
 		if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
 			if ("android.fbreader.action.CLOSE".equals(getIntent().getAction()) ) {
@@ -817,6 +818,9 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	private void onPreferencesUpdate(Book book) {
 		AndroidFontUtil.clearFontCache();
 		myFBReaderApp.onBookUpdated(book);
+		if (FBReaderApp.MiscOptions.YotaDrawOnBackScreen.getValue()) {
+			myYotaWidget.onPreferencesUpdate(SerializerUtil.serialize(book));
+		}
 	}
 
 	@Override
@@ -1150,13 +1154,22 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	public void close() {
 		((ZLAndroidLibrary)ZLAndroidLibrary.Instance()).finish();
 	}
+	
+	private WidgetShadow myYotaWidget = new WidgetShadow();
+	
+	void bindYotaWidget(boolean bind) {
+		if (bind) {
+			myYotaWidget.bindToService(this, null);
+		} else {
+			myYotaWidget.unbind();
+		}
+	}
 
 	@Override
 	public ZLViewWidget getViewWidget() {
 		if (FBReaderApp.MiscOptions.YotaDrawOnBackScreen.getValue()) {
-			if (com.yotadevices.fbreader.FBReaderYotaService.Widget != null) {
-				return com.yotadevices.fbreader.FBReaderYotaService.Widget;
-			}
+			myYotaWidget.bindToService(this, null);
+			return myYotaWidget;
 		}
 		return myMainView;
 	}
@@ -1243,7 +1256,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			return;
 		}
 
-		if (!myFBReaderApp.MiscOptions.YotaDrawOnBackScreen.getValue()) {
+		if (!FBReaderApp.MiscOptions.YotaDrawOnBackScreen.getValue()) {
 			boolean isServiceRunning = false;
 			final String serviceClassName = FBReaderYotaService.class.getName();
 			final ActivityManager manager =
@@ -1262,7 +1275,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		final Intent intent = new Intent(this, FBReaderYotaService.class);
 		intent.putExtra(
 			FBReaderYotaService.KEY_BACK_SCREEN_IS_ACTIVE,
-			myFBReaderApp.MiscOptions.YotaDrawOnBackScreen.getValue()
+			FBReaderApp.MiscOptions.YotaDrawOnBackScreen.getValue()
 		);
 		if (myFBReaderApp.Model != null) {
 			intent.putExtra(

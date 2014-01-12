@@ -65,9 +65,11 @@ class YotaSwitchScreenAction extends FBAndroidAction {
 			mainView.setVisibility(View.GONE);
 			mainHiddenView.setVisibility(View.VISIBLE);
 			RotationAlgorithm.getInstance(BaseActivity.getApplicationContext()).turnScreenOffIfRotated();
+			BaseActivity.bindYotaWidget(true);
 		} else {
 			mainView.setVisibility(View.VISIBLE);
 			mainHiddenView.setVisibility(View.GONE);
+			BaseActivity.bindYotaWidget(false);
 		}
 
 		final String screen = toBack ? "Yota" : "Base";
