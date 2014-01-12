@@ -46,22 +46,28 @@ import org.geometerplus.zlibrary.core.options.Config;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.util.MimeType;
 import org.geometerplus.zlibrary.core.view.ZLViewWidget;
+
 import org.geometerplus.zlibrary.text.view.ZLTextView;
+
 import org.geometerplus.zlibrary.ui.android.R;
 import org.geometerplus.zlibrary.ui.android.error.ErrorKeys;
 import org.geometerplus.zlibrary.ui.android.library.*;
 import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
 import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
+
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.bookmodel.BookModel;
 import org.geometerplus.fbreader.fbreader.*;
 import org.geometerplus.fbreader.fbreader.options.CancelMenuHelper;
 import org.geometerplus.fbreader.formats.*;
 import org.geometerplus.fbreader.tips.TipsManager;
+
 import org.geometerplus.android.fbreader.api.*;
 import org.geometerplus.android.fbreader.library.BookInfoActivity;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.android.fbreader.tips.TipsActivity;
+
+import org.geometerplus.android.util.DeviceType;
 import org.geometerplus.android.util.UIUtil;
 
 public final class FBReader extends Activity implements ZLApplicationWindow {
@@ -293,7 +299,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 					action.run();
 				}
 				hideBars();
-				if (getZLibrary().getDevice() == ZLAndroidLibrary.Device.YOTA_PHONE) {
+				if (DeviceType.Instance() == DeviceType.YOTA_PHONE) {
 					refreshYotaScreen();
 				}
 			}
@@ -958,7 +964,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 	private void setStatusBarVisibility(boolean visible) {
 		final ZLAndroidLibrary zlibrary = getZLibrary();
-		if (zlibrary.getDevice() != ZLAndroidLibrary.Device.KINDLE_FIRE_1ST_GENERATION &&
+		if (DeviceType.Instance() != DeviceType.KINDLE_FIRE_1ST_GENERATION &&
 			!zlibrary.ShowStatusBarOption.getValue()) {
 			myMainView.setPreserveSize(visible);
 			if (visible) {
