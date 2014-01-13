@@ -67,14 +67,14 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	private FBReaderApp myFBReaderApp;
 
 	int ONGOING_NOTIFICATION_ID = 1;
-	
+
 	//TODO: FIXME:
 	public void startForeground() {
 		Notification notification = new Notification.Builder(this)
-        .setContentTitle("TEST1")
-        .setContentText("TEST2")
-        .setSmallIcon(R.drawable.fbreader_bw)
-        .build();
+		.setContentTitle("TEST1")
+		.setContentText("TEST2")
+		.setSmallIcon(R.drawable.fbreader_bw)
+		.build();
 		Intent notificationIntent = new Intent(this, FBReader.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 		notification.setLatestEventInfo(this, "test1",
@@ -87,9 +87,6 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		super();
 		setIntentRedelivery(true);
 	}
-	
-	private boolean myNeedToOpenBook = false;
-	private Book myBookToOpen = null;
 
 	@Override
 	public void onBSCreate() {
@@ -101,7 +98,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
 			@Override
 			public void run() {
-//				myFBReaderApp.openBook(myFBReaderApp.Collection.getRecentBook(0), null, null);
+				//				myFBReaderApp.openBook(myFBReaderApp.Collection.getRecentBook(0), null, null);
 			}});
 		myFBReaderApp.setWindow(this);
 		myFBReaderApp.initWindow();
@@ -113,22 +110,18 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		String screen = "Yota";
 		FBReaderApp.TextStyleCollection = new ZLTextStyleCollection(screen);
 		FBReaderApp.FooterOptions = new FooterOptions(screen);
-		myNeedToOpenBook = true;
-		myBookToOpen = null;
+		((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
+			@Override
+			public void run() {
+				myFBReaderApp.openBook(null, null, null);
+			}
+		});
 		initBookView(false);
 	}
 
 	@Override
 	public void onBSResume() {
 		super.onBSResume();
-		if (myNeedToOpenBook) {
-			((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
-				@Override
-				public void run() {
-					myFBReaderApp.openBook(myBookToOpen, null, null);
-				}
-			});
-		}
 		initBookView(true);
 	}
 
@@ -167,14 +160,28 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 			Book book1 = SerializerUtil.deserializeBook(book);
 			myFBReaderApp.onBookUpdated(book1);
 		}
-		
+
 		@Override
 		public void startForeground() throws RemoteException {
+			((BookCollectionShadow)myFBReaderApp.Collection).bindToService(FBReaderYotaService.this, new Runnable() {
+				@Override
+				public void run() {
+					if (myFBReaderApp.Model.Book != null) {
+						myFBReaderApp.BookTextView.gotoPosition(myFBReaderApp.Collection.getStoredPosition(myFBReaderApp.Model.Book.getId()));
+					}
+				}
+			});
 			FBReaderYotaService.this.startForeground();
 		}
 
 		@Override
 		public void stopForeground() throws RemoteException {
+			((BookCollectionShadow)myFBReaderApp.Collection).bindToService(FBReaderYotaService.this, new Runnable() {
+				@Override
+				public void run() {
+					myFBReaderApp.storePosition();
+				}
+			});
 			FBReaderYotaService.this.stopForeground(true);
 		}
 	}
@@ -310,8 +317,12 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		}
 		if (intent.hasExtra(KEY_CURRENT_BOOK)) {
 			myCurrentBook = SerializerUtil.deserializeBook(intent.getStringExtra(KEY_CURRENT_BOOK));
-			myNeedToOpenBook = true;
-			myBookToOpen = myCurrentBook;
+			((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
+				@Override
+				public void run() {
+					myFBReaderApp.openBook(myCurrentBook, null, null);
+				}
+			});
 		}
 
 		initBookView(true);
@@ -351,7 +362,6 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	@Override
 	public void runWithMessage(String key, Runnable runnable,
 			Runnable postAction) {
-		// TODO Auto-generated method stub
 		runnable.run();
 	}
 

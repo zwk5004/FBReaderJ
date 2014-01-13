@@ -720,7 +720,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 						Log.d("fbj", "opening book from onresume");
 						getCollection().bindToService(this, new Runnable() {
 							public void run() {
-								refreshYotaScreen();
 								myFBReaderApp.openBook(myFBReaderApp.Model.Book, null, null);
 							}
 						});
@@ -736,6 +735,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			Log.d("fbj", "needtoopen");
 			getCollection().bindToService(this, new Runnable() {
 				public void run() {
+					refreshYotaScreen();
 					openBook(myIntentToOpen, null, true);
 					myIntentToOpen = null;
 				}

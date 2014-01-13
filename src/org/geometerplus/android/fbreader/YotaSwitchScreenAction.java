@@ -23,13 +23,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.yotadevices.fbreader.FBReaderYotaService;
 import com.yotadevices.sdk.utils.RotationAlgorithm;
 
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.text.view.style.ZLTextStyleCollection;
-
 import org.geometerplus.zlibrary.ui.android.R;
-
+import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.fbreader.fbreader.FBReaderApp;
 import org.geometerplus.fbreader.fbreader.options.FooterOptions;
 
@@ -60,6 +60,12 @@ class YotaSwitchScreenAction extends FBAndroidAction {
 
 		if (toBack) {
 			Reader.getTextView().clearSelection();
+			((BookCollectionShadow)Reader.Collection).bindToService(BaseActivity, new Runnable() {
+				@Override
+				public void run() {
+					Reader.storePosition();
+				}
+			});
 			BaseActivity.hideSelectionPanel();
 			setupHiddenView(mainHiddenView);
 			mainView.setVisibility(View.GONE);
@@ -70,6 +76,14 @@ class YotaSwitchScreenAction extends FBAndroidAction {
 			mainView.setVisibility(View.VISIBLE);
 			mainHiddenView.setVisibility(View.GONE);
 			BaseActivity.bindYotaWidget(false);
+			((BookCollectionShadow)Reader.Collection).bindToService(BaseActivity, new Runnable() {
+				@Override
+				public void run() {
+					if (Reader.Model.Book != null) {
+						Reader.BookTextView.gotoPosition(Reader.Collection.getStoredPosition(Reader.Model.Book.getId()));
+					}
+				}
+			});
 		}
 
 		final String screen = toBack ? "Yota" : "Base";
