@@ -23,7 +23,8 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.*;
 
-import android.app.*;
+import android.app.Activity;
+import android.app.SearchManager;
 import android.content.*;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -67,8 +68,7 @@ import org.geometerplus.android.fbreader.library.BookInfoActivity;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.android.fbreader.tips.TipsActivity;
 
-import org.geometerplus.android.util.DeviceType;
-import org.geometerplus.android.util.UIUtil;
+import org.geometerplus.android.util.*;
 
 public final class FBReader extends Activity implements ZLApplicationWindow {
 	private class ExtFileOpener implements FBReaderApp.ExternalFileOpener {
@@ -798,16 +798,29 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	public boolean onSearchRequested() {
 		final FBReaderApp.PopupPanel popup = myFBReaderApp.getActivePopup();
 		myFBReaderApp.hideActivePopup();
-		final SearchManager manager = (SearchManager)getSystemService(SEARCH_SERVICE);
-		manager.setOnCancelListener(new SearchManager.OnCancelListener() {
-			public void onCancel() {
-				if (popup != null) {
-					myFBReaderApp.showPopup(popup.getId());
+		if (DeviceType.Instance().hasStandardSearchDialog()) {
+			final SearchManager manager = (SearchManager)getSystemService(SEARCH_SERVICE);
+			manager.setOnCancelListener(new SearchManager.OnCancelListener() {
+				public void onCancel() {
+					if (popup != null) {
+						myFBReaderApp.showPopup(popup.getId());
+					}
+					manager.setOnCancelListener(null);
 				}
-				manager.setOnCancelListener(null);
-			}
-		});
-		startSearch(myFBReaderApp.MiscOptions.TextSearchPattern.getValue(), true, null, false);
+			});
+			startSearch(myFBReaderApp.MiscOptions.TextSearchPattern.getValue(), true, null, false);
+		} else {
+			SearchDialogUtil.showDialog(
+				this, FBReader.class, myFBReaderApp.MiscOptions.TextSearchPattern.getValue(), new DialogInterface.OnCancelListener() {
+					@Override
+					public void onCancel(DialogInterface di) {
+						if (popup != null) {
+							myFBReaderApp.showPopup(popup.getId());
+						}
+					}
+				}
+			);
+		}
 		return true;
 	}
 
