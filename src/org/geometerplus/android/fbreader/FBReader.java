@@ -195,8 +195,10 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	}
 
 	public static final String ACTION_OPEN_BOOK = "android.fbreader.action.VIEW";
+	public static final String ACTION_OPEN_PLUGIN = "android.fbreader.action.PLUGIN";
 	public static final String BOOK_KEY = "fbreader.book";
 	public static final String BOOKMARK_KEY = "fbreader.bookmark";
+	public static final String PLUGIN_KEY = "fbreader.plugin";
 
 	static final int ACTION_BAR_COLOR = Color.DKGRAY;
 
@@ -493,6 +495,10 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			myNeedToOpenFile = true;
 			myIntentToOpen = intent;
 			myNeedToSkipPlugin = true;
+		} else if (ACTION_OPEN_PLUGIN.equals(action)) {
+			if (data != null) {
+				new RunPluginAction(this, myFBReaderApp, data).run();
+			}
 		} else if (Intent.ACTION_SEARCH.equals(action)) {
 			final String pattern = intent.getStringExtra(SearchManager.QUERY);
 			final Runnable runnable = new Runnable() {
