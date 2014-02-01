@@ -42,9 +42,9 @@ import org.geometerplus.fbreader.fbreader.options.*;
 public final class FBReaderApp extends ZLApplication {
 	public static final ZLTextStyleCollection TextStyleCollection;
 
-	public static final MiscOptions MiscOptions;
-	public static final ImageOptions ImageOptions;
-	public static final ViewOptions ViewOptions;
+	public final MiscOptions MiscOptions;
+	public final ImageOptions ImageOptions;
+	public final ViewOptions ViewOptions;
 	public static final PageTurningOptions PageTurningOptions;
 	public static final FooterOptions FooterOptions;
 
@@ -53,14 +53,15 @@ public final class FBReaderApp extends ZLApplication {
 	static {
 		TextStyleCollection = new ZLTextStyleCollection("Base");
 
-		MiscOptions = new MiscOptions();
-		ImageOptions = new ImageOptions();
-		ViewOptions = new ViewOptions();
 		PageTurningOptions = new PageTurningOptions();
 		FooterOptions = new FooterOptions();
 	}
 
 	{
+		MiscOptions = new MiscOptions();
+		ImageOptions = new ImageOptions();
+		ViewOptions = new ViewOptions();
+
 		myBindings = new ZLKeyBindings();
 	}
 
@@ -217,18 +218,6 @@ public final class FBReaderApp extends ZLApplication {
 				}
 			}, null);
 		}
-	}
-
-	public static ColorProfile getColorProfile() {
-		return ColorProfile.get(getColorProfileName());
-	}
-
-	public static String getColorProfileName() {
-		return ViewOptions.ColorProfileName.getValue();
-	}
-
-	public static void setColorProfileName(String name) {
-		ViewOptions.ColorProfileName.setValue(name);
 	}
 
 	public ZLKeyBindings keyBindings() {
