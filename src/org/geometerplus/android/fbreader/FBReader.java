@@ -228,9 +228,9 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	private RelativeLayout myRootView;
 	private ZLAndroidWidget myMainView;
 
-	private boolean myShowStatusBarFlag;
-	private boolean myShowActionBarFlag;
-	private boolean myActionBarIsVisible;
+	private volatile boolean myShowStatusBarFlag;
+	private volatile boolean myShowActionBarFlag;
+	private volatile boolean myActionBarIsVisible;
 
 	private boolean myIsPaused = false;
 	private AlertDialog myDialogToShow = null;
@@ -355,6 +355,9 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			final SharedPreferences preferences = getSharedPreferences("fbreader.ui", MODE_PRIVATE);
 			myShowStatusBarFlag = preferences.getBoolean("statusBar", myShowStatusBarFlag);
 			myShowActionBarFlag = preferences.getBoolean("actionBar", myShowActionBarFlag);
+		} else {
+			myShowStatusBarFlag = zlibrary.ShowStatusBarOption.getValue();
+			myShowActionBarFlag = zlibrary.ShowActionBarOption.getValue();
 		}
 		myActionBarIsVisible = myShowActionBarFlag;
 
@@ -973,8 +976,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 	private void setStatusBarVisibility(boolean visible) {
 		final ZLAndroidLibrary zlibrary = getZLibrary();
-		if (DeviceType.Instance() != DeviceType.KINDLE_FIRE_1ST_GENERATION &&
-			!zlibrary.ShowStatusBarOption.getValue()) {
+		if (DeviceType.Instance() != DeviceType.KINDLE_FIRE_1ST_GENERATION && !myShowStatusBarFlag) {
 			myMainView.setPreserveSize(visible);
 			if (visible) {
 				getWindow().addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
@@ -999,7 +1001,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		}
 
 		final ZLAndroidLibrary zlibrary = getZLibrary();
-		if (!zlibrary.ShowActionBarOption.getValue()) {
+		if (!myShowActionBarFlag) {
 			getActionBar().hide();
 			myActionBarIsVisible = false;
 			invalidateOptionsMenu();
