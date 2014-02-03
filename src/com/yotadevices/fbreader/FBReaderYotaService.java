@@ -8,21 +8,20 @@ package com.yotadevices.fbreader;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-
+import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.*;
 import android.graphics.*;
 import android.net.Uri;
+import android.os.Build;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
-
 import com.yotadevices.sdk.*;
 import com.yotadevices.sdk.utils.EinkUtils;
-
 import org.geometerplus.zlibrary.core.application.ZLApplicationWindow;
 import org.geometerplus.zlibrary.core.application.ZLKeyBindings;
 import org.geometerplus.zlibrary.core.image.ZLImage;
@@ -50,11 +49,20 @@ import org.geometerplus.fbreader.fbreader.options.MiscOptions;
 /**
  * @author ASazonov
  */
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class FBReaderYotaService extends BSActivity implements ZLApplicationWindow {
 	public static final String KEY_BACK_SCREEN_IS_ACTIVE =
 			"com.yotadevices.fbreader.backScreenIsActive";
 	public static final String KEY_CURRENT_BOOK =
 			"com.yotadevices.fbreader.currentBook";
+	
+	public static final String WIDGET_ACTION = "com.yotadevices.fbreader.widgetAction";
+	public static final String RESET = "reset";
+	public static final String REPAINT = "repaint";
+	public static final String ON_PREFERENCE_UPDATE = "onPreferenceUpdate";
+	public static final String START_FOREGROUND = "startForeground";
+	public static final String STOP_FOREGROUND = "stopForeground";
+	
 
 	static ZLAndroidWidget Widget;
 	private Canvas myCanvas;
@@ -129,61 +137,6 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	public void onBSDestroy() {
 		Widget = null;
 		super.onBSDestroy();
-	}
-
-	@Override
-	public IBinder onBind(Intent intent) {
-		return myWidgetProxy;
-	}
-
-	private WidgetProxy myWidgetProxy = new WidgetProxy();
-
-	public class WidgetProxy extends WidgetInterface.Stub {
-		@Override
-		public void reset() throws RemoteException {
-			if (Widget != null) {
-				AndroidFontUtil.clearFontCache();
-				Widget.reset();
-			}
-		}
-
-		@Override
-		public void repaint() throws RemoteException {
-			if (Widget != null) {
-				Widget.repaint();
-			}
-		}
-
-		@Override
-		public void onPreferencesUpdate(String book) throws RemoteException {
-			AndroidFontUtil.clearFontCache();
-			Book book1 = SerializerUtil.deserializeBook(book);
-			myFBReaderApp.onBookUpdated(book1);
-		}
-
-		@Override
-		public void startForeground() throws RemoteException {
-			((BookCollectionShadow)myFBReaderApp.Collection).bindToService(FBReaderYotaService.this, new Runnable() {
-				@Override
-				public void run() {
-					if (myFBReaderApp.Model.Book != null) {
-						myFBReaderApp.BookTextView.gotoPosition(myFBReaderApp.Collection.getStoredPosition(myFBReaderApp.Model.Book.getId()));
-					}
-				}
-			});
-			FBReaderYotaService.this.startForeground();
-		}
-
-		@Override
-		public void stopForeground() throws RemoteException {
-			((BookCollectionShadow)myFBReaderApp.Collection).bindToService(FBReaderYotaService.this, new Runnable() {
-				@Override
-				public void run() {
-					myFBReaderApp.storePosition();
-				}
-			});
-			FBReaderYotaService.this.stopForeground(true);
-		}
 	}
 
 	private class YotaBackScreenWidget extends ZLAndroidWidget {
@@ -310,6 +263,39 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 
 	@Override
 	protected void onHandleIntent(Intent intent) {
+		if (intent.hasExtra(WIDGET_ACTION)) {
+			String action = intent.getStringExtra(WIDGET_ACTION);
+			if (REPAINT.equals(action)) {
+				Widget.repaint();
+			} else if (RESET.equals(action)) {
+				AndroidFontUtil.clearFontCache();
+				Widget.reset();
+			} else if (ON_PREFERENCE_UPDATE.equals(action)) {
+				Book book = SerializerUtil.deserializeBook(intent.getStringExtra(KEY_CURRENT_BOOK));
+				AndroidFontUtil.clearFontCache();
+				myFBReaderApp.onBookUpdated(book);
+			} else if (START_FOREGROUND.equals(action)) {
+				((BookCollectionShadow)myFBReaderApp.Collection).bindToService(FBReaderYotaService.this, new Runnable() {
+					@Override
+					public void run() {
+						if (myFBReaderApp.Model.Book != null) {
+							myFBReaderApp.BookTextView.gotoPosition(myFBReaderApp.Collection.getStoredPosition(myFBReaderApp.Model.Book.getId()));
+						}
+					}
+				});
+				FBReaderYotaService.this.startForeground();
+			} else if (STOP_FOREGROUND.equals(action)) {
+				((BookCollectionShadow)myFBReaderApp.Collection).bindToService(FBReaderYotaService.this, new Runnable() {
+					@Override
+					public void run() {
+						myFBReaderApp.storePosition();
+					}
+				});
+				FBReaderYotaService.this.stopForeground(true);
+			}
+			return;
+		}
+		
 		if (intent.hasExtra(KEY_BACK_SCREEN_IS_ACTIVE)) {
 			myBackScreenIsActive = intent.getBooleanExtra(KEY_BACK_SCREEN_IS_ACTIVE, false);
 		} else {

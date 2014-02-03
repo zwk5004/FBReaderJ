@@ -32,98 +32,51 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 
-public class WidgetShadow implements ZLViewWidget, ServiceConnection {
+public class WidgetShadow implements ZLViewWidget {
 	private Context myContext;
-	private volatile WidgetInterface myInterface;
-	private Runnable myOnBindAction;
-
-	private static Runnable combined(final Runnable action0, final Runnable action1) {
-		if (action0 == null) {
-			return action1;
-		}
-		if (action1 == null) {
-			return action0;
-		}
-		return new Runnable() {
-			public void run() {
-				action0.run();
-				action1.run();
-			}
-		};
+	
+	public WidgetShadow(Context c) {
+		myContext = c;
+	}
+	
+	public void start() {
+		Intent i = new Intent(myContext, FBReaderYotaService.class);
+		myContext.startService(i);
 	}
 
-	public synchronized void bindToService(Context context, Runnable onBindAction) {
-		if (myInterface != null && myContext == context) {
-			if (onBindAction != null) {
-				onBindAction.run();
-			}
-		} else {
-			myOnBindAction = combined(myOnBindAction, onBindAction);
-			context.bindService(
-					new Intent(context, FBReaderYotaService.class),
-					this,
-					Service.BIND_AUTO_CREATE
-					);
-			myContext = context;
-		}
-	}
-
-	public synchronized void unbind() {
-		if (myContext != null && myInterface != null) {
-			try {
-				myContext.unbindService(this);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			myInterface = null;
-			myContext = null;
-		}
-	}
 
 	public  void reset() {
-		if (myInterface != null) {
-			try {
-				myInterface.reset();
-			} catch (RemoteException e) {
-			}
-		}
+		Intent i = new Intent(myContext, FBReaderYotaService.class);
+		i.putExtra(FBReaderYotaService.WIDGET_ACTION, FBReaderYotaService.RESET);
+		myContext.startService(i);
 	}
 
 	public  void repaint() {
-		if (myInterface != null) {
-			try {
-				myInterface.repaint();
-			} catch (RemoteException e) {
-			}
-		}
+		Intent i = new Intent(myContext, FBReaderYotaService.class);
+		i.putExtra(FBReaderYotaService.WIDGET_ACTION, FBReaderYotaService.REPAINT);
+		myContext.startService(i);
 	}
 
 	public void onPreferencesUpdate(String book) {
-		if (myInterface != null) {
-			try {
-				myInterface.onPreferencesUpdate(book);
-			} catch (RemoteException e) {
-			}
-		}
+		Intent i = new Intent(myContext, FBReaderYotaService.class);
+		i.putExtra(FBReaderYotaService.WIDGET_ACTION, FBReaderYotaService.ON_PREFERENCE_UPDATE);
+		i.putExtra(FBReaderYotaService.KEY_CURRENT_BOOK, book);
+		myContext.startService(i);
 	}
 
 	public void stopForeground() {
-		if (myInterface != null) {
-			try {
-				myInterface.stopForeground();;
-			} catch (RemoteException e) {
-			}
-		}
+		Intent i = new Intent(myContext, FBReaderYotaService.class);
+		i.putExtra(FBReaderYotaService.WIDGET_ACTION, FBReaderYotaService.STOP_FOREGROUND);
+		myContext.startService(i);
 	}
 	
 	public void startForeground() {
-		if (myInterface != null) {
-			try {
-				myInterface.startForeground();;
-			} catch (RemoteException e) {
-			}
-		}
+		Intent i = new Intent(myContext, FBReaderYotaService.class);
+		i.putExtra(FBReaderYotaService.WIDGET_ACTION, FBReaderYotaService.START_FOREGROUND);
+		myContext.startService(i);
 	}
+	
+	
 
 	@Override
 	public void startManualScrolling(int x, int y, Direction direction) {
@@ -140,7 +93,6 @@ public class WidgetShadow implements ZLViewWidget, ServiceConnection {
 			Direction direction, int speed) {
 		// TODO Auto-generated method stub
 		Log.e("Widget", "startAnimatedScrolling1");
-
 	}
 	@Override
 	public void startAnimatedScrolling(PageIndex pageIndex,
@@ -153,18 +105,4 @@ public class WidgetShadow implements ZLViewWidget, ServiceConnection {
 		// TODO Auto-generated method stub
 		Log.e("Widget", "startAnimatedScrolling3");
 	}
-
-	// method from ServiceConnection interface
-	public synchronized void onServiceConnected(ComponentName name, IBinder service) {
-		myInterface = WidgetInterface.Stub.asInterface(service);
-		if (myOnBindAction != null) {
-			myOnBindAction.run();
-			myOnBindAction = null;
-		}
-	}
-
-	// method from ServiceConnection interface
-	public synchronized void onServiceDisconnected(ComponentName name) {
-	}
-
 }
