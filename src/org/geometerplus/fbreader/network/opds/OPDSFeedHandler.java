@@ -114,7 +114,7 @@ class OPDSFeedHandler extends AbstractOPDSFeedHandler implements OPDSConstants {
 		}
 
 		String id = null;
-		String idType = null;
+		BookUrlInfo.Format idType = BookUrlInfo.Format.NONE;
 
 		final OPDSNetworkLink opdsLink = (OPDSNetworkLink)myData.Link;
 		for (ATOMLink link : entry.Links) {
@@ -124,14 +124,13 @@ class OPDSFeedHandler extends AbstractOPDSFeedHandler implements OPDSConstants {
 			if (rel == null && MimeType.APP_ATOM_XML.weakEquals(mime)) {
 				return ZLNetworkUtil.url(myBaseURL, link.getHref());
 			}
-			String relType = BookUrlInfo.Format.NONE;
+			BookUrlInfo.Format relType = BookUrlInfo.Format.NONE;
 			if (rel == null || rel.startsWith(REL_ACQUISITION_PREFIX)
 					|| rel.startsWith(REL_FBREADER_ACQUISITION_PREFIX)) {
 				relType = OPDSBookItem.formatByMimeType(mime);
 			}
-			if (!relType.equals(BookUrlInfo.Format.NONE)
-					&& (id == null
-						|| BookUrlInfo.getPriority(idType) < BookUrlInfo.getPriority(relType)
+			if (!BookUrlInfo.Format.NONE.equals(relType)
+					&& (id == null || idType.compareTo(relType) < 0
 						|| (idType.equals(relType) && REL_ACQUISITION.equals(rel)))) {
 				id = ZLNetworkUtil.url(myBaseURL, link.getHref());
 				idType = relType;
@@ -172,7 +171,7 @@ class OPDSFeedHandler extends AbstractOPDSFeedHandler implements OPDSConstants {
 			final MimeType mime = MimeType.get(link.getType());
 			final String rel = opdsLink.relation(link.getRel(), mime);
 			if (rel == null
-					? (OPDSBookItem.formatByMimeType(mime) != BookUrlInfo.Format.NONE)
+					? (!BookUrlInfo.Format.NONE.equals(OPDSBookItem.formatByMimeType(mime)))
 					: (rel.startsWith(REL_ACQUISITION_PREFIX)
 							|| rel.startsWith(REL_FBREADER_ACQUISITION_PREFIX))) {
 				hasBookLink = true;

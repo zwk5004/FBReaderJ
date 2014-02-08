@@ -103,6 +103,26 @@ public final class ConfigShadow extends Config implements ServiceConnection {
 		}
 	}
 
+	public boolean getSpecialBooleanValue(String name, boolean defaultValue) {
+		return myContext.getSharedPreferences("fbreader.ui", Context.MODE_PRIVATE)
+			.getBoolean(name, defaultValue);
+	}
+
+	public void setSpecialBooleanValue(String name, boolean value) {
+		myContext.getSharedPreferences("fbreader.ui", Context.MODE_PRIVATE).edit()
+			.putBoolean(name, value).commit();
+	}
+
+	public String getSpecialStringValue(String name, String defaultValue) {
+		return myContext.getSharedPreferences("fbreader.ui", Context.MODE_PRIVATE)
+			.getString(name, defaultValue);
+	}
+
+	public void setSpecialStringValue(String name, String value) {
+		myContext.getSharedPreferences("fbreader.ui", Context.MODE_PRIVATE).edit()
+			.putString(name, value).commit();
+	}
+
 	@Override
 	protected String getValueInternal(String group, String name) throws NotAvailableException {
 		if (myInterface == null) {
@@ -132,6 +152,25 @@ public final class ConfigShadow extends Config implements ServiceConnection {
 				myInterface.unsetValue(group, name);
 			} catch (RemoteException e) {
 			}
+		}
+	}
+
+	@Override
+	protected Map<String,String> requestAllValuesForGroupInternal(String group) throws NotAvailableException {
+		if (myInterface == null) {
+			throw new NotAvailableException("Config is not initialized for " + group);
+		}
+		try {
+			final Map<String,String> values = new HashMap<String,String>();
+			for (String pair : myInterface.requestAllValuesForGroup(group)) {
+				final String[] split = pair.split("\000");
+				if (split.length == 2) {
+					values.put(split[0], split[1]);
+				}
+			}
+			return values;
+		} catch (RemoteException e) {
+			throw new NotAvailableException("RemoteException for " + group);
 		}
 	}
 
