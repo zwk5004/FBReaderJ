@@ -447,7 +447,7 @@ public final class FBView extends ZLTextView {
 	private class Footer implements FooterArea {
 		private Runnable UpdateTask = new Runnable() {
 			public void run() {
-				if (!myReader.MiscOptions.YotaDrawOnBackScreen.getValue()) {
+				if (!myViewOptions.YotaDrawOnBackScreen.getValue()) {
 					myReader.getViewWidget().repaint();
 				}
 			}
@@ -657,7 +657,7 @@ public final class FBView extends ZLTextView {
 
 	@Override
 	public Animation getAnimationType() {
-		if (myReader.MiscOptions.YotaDrawOnBackScreen.getValue()) {
+		if (myViewOptions.YotaDrawOnBackScreen.getValue()) {
 			return Animation.none;
 		} else {
 			return myReader.PageTurningOptions.Animation.getValue();
