@@ -343,7 +343,7 @@ public final class FBReaderApp extends ZLApplication {
 				/*
 				UIUtil.showErrorMessage(
 					FBReader.this,
-					"unsupportedEncryptionAlgorithm",
+					"unsupportedEncryptionMethod",
 					myBook.File.getPath()
 				);
 				*/
