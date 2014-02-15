@@ -73,10 +73,10 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	//TODO: FIXME:
 	public void startForeground() {
 		Notification notification = new Notification.Builder(this)
-		.setContentTitle("TEST1")
-		.setContentText("TEST2")
-		.setSmallIcon(R.drawable.fbreader_bw)
-		.build();
+			.setContentTitle("TEST1")
+			.setContentText("TEST2")
+			.setSmallIcon(R.drawable.fbreader_bw)
+			.build();
 		Intent notificationIntent = new Intent(this, FBReader.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 		notification.setLatestEventInfo(this, "test1", "test2", pendingIntent);
