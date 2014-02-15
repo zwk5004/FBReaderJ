@@ -8,6 +8,10 @@ package com.yotadevices.fbreader;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -75,8 +79,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		.build();
 		Intent notificationIntent = new Intent(this, FBReader.class);
 		PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-		notification.setLatestEventInfo(this, "test1",
-				"test2", pendingIntent);
+		notification.setLatestEventInfo(this, "test1", "test2", pendingIntent);
 		startForeground(ONGOING_NOTIFICATION_ID, notification);
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(this));
 	}
@@ -124,6 +127,20 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	public void onBSDestroy() {
 		Widget = null;
 		super.onBSDestroy();
+	}
+	
+	private static byte[] MD5(Bitmap image) {
+		// TODO: possible too large array(s)?
+		final int bytesNum = image.getWidth() * image.getHeight() * 2;
+		final ByteBuffer buffer = ByteBuffer.allocate(bytesNum);
+		image.copyPixelsToBuffer(buffer);
+		try {
+			final MessageDigest digest = MessageDigest.getInstance("MD5");
+			digest.update(buffer.array());
+			return digest.digest();
+		} catch (NoSuchAlgorithmException e) {
+			return null;
+		}
 	}
 
 	@Override
@@ -189,11 +206,17 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		YotaBackScreenWidget(Context context) {
 			super(context);
 		}
+		
+		private volatile byte[] myStoredMD5 = null;
 
 		@Override
-		public void repaint() {
+		public synchronized void repaint() {
 			draw(myCanvas);
-			getBSDrawer().drawBitmap(0, 0, myBitmap, BSDrawer.Waveform.WAVEFORM_GC_PARTIAL);
+			final byte[] currentMD5 = MD5(myBitmap);
+			if (myStoredMD5 == null || !myStoredMD5.equals(currentMD5)) {
+				getBSDrawer().drawBitmap(0, 0, myBitmap, BSDrawer.Waveform.WAVEFORM_GC_PARTIAL);
+				myStoredMD5 = currentMD5;
+			}
 		}
 
 		@Override
@@ -261,8 +284,8 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	private void initBookView(final boolean refresh) {
 		if (myBitmap == null) {
 			myBitmap = Bitmap.createBitmap(
-					BSDrawer.SCREEN_WIDTH, BSDrawer.SCREEN_HEIGHT, Bitmap.Config.ARGB_8888
-					);
+				BSDrawer.SCREEN_WIDTH, BSDrawer.SCREEN_HEIGHT, Bitmap.Config.RGB_565
+			);
 			myCanvas = new Canvas(myBitmap);
 		}
 		if (Widget == null) {
