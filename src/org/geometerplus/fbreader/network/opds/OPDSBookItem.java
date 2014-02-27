@@ -19,21 +19,22 @@
 
 package org.geometerplus.fbreader.network.opds;
 
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
-import org.geometerplus.zlibrary.core.network.*;
+import org.geometerplus.zlibrary.core.filetypes.FileType;
+import org.geometerplus.zlibrary.core.filetypes.FileTypeCollection;
 import org.geometerplus.zlibrary.core.money.Money;
+import org.geometerplus.zlibrary.core.network.*;
 import org.geometerplus.zlibrary.core.util.MimeType;
 import org.geometerplus.zlibrary.core.util.ZLNetworkUtil;
 
+import org.geometerplus.fbreader.formats.FormatPlugin;
+import org.geometerplus.fbreader.formats.Formats;
 import org.geometerplus.fbreader.network.INetworkLink;
 import org.geometerplus.fbreader.network.NetworkBookItem;
 import org.geometerplus.fbreader.network.atom.*;
 import org.geometerplus.fbreader.network.urlInfo.*;
-
-import org.geometerplus.fbreader.formats.*;
-import org.geometerplus.zlibrary.core.filetypes.*;
 
 public class OPDSBookItem extends NetworkBookItem implements OPDSConstants {
 	public static OPDSBookItem create(INetworkLink link, String url) {
@@ -155,8 +156,8 @@ public class OPDSBookItem extends NetworkBookItem implements OPDSConstants {
 			} else if (referenceType == UrlInfo.Type.TOC) {
 				urls.addInfo(new UrlInfo(referenceType, href, mime));
 			} else if (referenceType != null) {
-				final String format = formatByMimeType(mime);
-				if (format != null && !format.equals(BookUrlInfo.Format.NONE)) {
+				final BookUrlInfo.Format format = formatByMimeType(mime);
+				if (!BookUrlInfo.Format.NONE.equals(format)) {
 					urls.addInfo(new BookUrlInfo(referenceType, format, href, mime));
 				}
 			}
@@ -197,8 +198,8 @@ public class OPDSBookItem extends NetworkBookItem implements OPDSConstants {
 		boolean added = false;
 		for (String f : opdsLink.Formats) {
 			final MimeType mime = MimeType.get(f);
-			final String format = formatByMimeType(mime);
-			if (!format.equals(BookUrlInfo.Format.NONE)) {
+			final BookUrlInfo.Format format = formatByMimeType(mime);
+			if (!BookUrlInfo.Format.NONE.equals(format)) {
 				urls.addInfo(new BookBuyUrlInfo(type, format, href, mime, price));
 				added = true;
 			}
@@ -208,7 +209,7 @@ public class OPDSBookItem extends NetworkBookItem implements OPDSConstants {
 		}
 	}
 
-	static String formatByMimeType(MimeType mime) {
+	static BookUrlInfo.Format formatByMimeType(MimeType mime) {
 		for (String format : Formats.getAllFormats()) {
 			if (Formats.getStatus(format) != FormatPlugin.Type.NONE) {
 				final FileType ft = FileTypeCollection.Instance.typeById(format);
@@ -216,7 +217,7 @@ public class OPDSBookItem extends NetworkBookItem implements OPDSConstants {
 					return BookUrlInfo.Format.NONE;
 				}
 				if (ft.mimeTypes().contains(mime)) {
-					return ft.defaultExtension(mime);
+					return new BookUrlInfo.Format(ft.defaultExtension(mime));
 				}
 			}
 		}

@@ -19,6 +19,7 @@
 
 package org.geometerplus.fbreader.formats;
 
+import org.geometerplus.zlibrary.core.drm.EncryptionMethod;
 import org.geometerplus.zlibrary.core.filesystem.*;
 import org.geometerplus.zlibrary.core.image.ZLImage;
 
@@ -42,6 +43,11 @@ public class PdfPluginFormatPlugin extends PluginFormatPlugin {
 	@Override
 	public void readMetaInfo(Book book) throws BookReadingException {
 		//TODO
+	}
+
+	@Override
+	public String readEncryptionMethod(Book book) {
+		return EncryptionMethod.NONE;
 	}
 
 	@Override

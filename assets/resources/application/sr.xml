@@ -292,7 +292,7 @@
 		<node name="toggleFullscreen" value="Цео екран"/>
 		<node name="bookmarks" value="Обележивачи"/>
 		<node name="help" value="Help" toBeTranslated="true"/>
-		<node name="plugins" value="Plugins" toBeTranslated="true"/>
+		<node name="plugins" value="Install plugins" toBeTranslated="true"/>
 	</node>
 	<node name="BookInfo">
 		<node name="fileName" value="Име датотеке"/>
@@ -571,17 +571,6 @@
 				<node name="wood" value="Дрво"/>
 			</node>
 			<node name="backgroundColor" value="Боја позадине"/>
-			<node name="selectionBackground" value="Selection background" toBeTranslated="true"/>
-			<node name="selectionForeground" value="Selected text" toBeTranslated="true"/>
-			<node name="text" value="Regular text" toBeTranslated="true"/>
-			<node name="hyperlink" value="Hyperlink text" toBeTranslated="true"/>
-			<node name="hyperlinkVisited" value="Visited hyperlink text" toBeTranslated="true"/>
-			<node name="highlighting" value="Search results background" toBeTranslated="true"/>
-			<node name="footer" value="Footer" toBeTranslated="true"/>
-			<node name="imagesBackground" value="Images Background" toBeTranslated="true">
-				<node name="summaryOn" value="Use background" toBeTranslated="true"/>
-				<node name="summaryOff" value="Do not use background" toBeTranslated="true"/>
-			</node>
 			<node name="selectionBackground" value="Изабрана позадина"/>
 			<node name="selectionForeground" value="Изабрани текст"/>
 			<node name="text" value="Нормал текст"/>
@@ -884,6 +873,15 @@
 		<node name="mainBookDirEditing" value="Editing of main directory will lead to loss of data. Continue?" toBeTranslated="true"/>
 	</node>
 	<node name="errorMessage">
+		<node name="nativeCodeFailure" value="Error %s in native code during reading '%s'" toBeTranslated="true"/>
+		<node name="errorReadingFile" value="Грешка при читању „%s“."/>
+		<node name="errorReadingZip" value="Грешка при отпакивању „%s“."/>
+		<node name="pluginNotFound" value="Нема додатка за „%s“."/>
+		<node name="unknownPluginType" value="Непозната врста додатка: %s."/>
+		<node name="fileNotFound" value="Не могу да пронађем датотеку: %s."/>
+		<node name="opfFileNotFound" value="Не могу да пронађем OPF у „%s“."/>
+		<node name="unsupportedFileFormat" value="Формат датотеке није подржан за „%s“."/>
+		<node name="errorParsingRtf" value="Грешка при рашчлањивању RTF-а у: %s."/>
 		<node name="cannotRunAndroidMarket" value="Не могу да приступим Гугл плеју. Ручно инсталирајте „%s“."/>
 		<node name="textNotFound" value="Нема траженог текста у књизи."/>
 		<node name="bookNotFound" value="Нема тражених књига у библиотеци."/>
@@ -927,20 +925,11 @@
 			<node name="title" value="Проблем с FBReader-ом"/>
 		</node>
 	</node>
-	<node name="bookReadingException">
-		<node name="errorReadingFile" value="Грешка при читању „%s“."/>
-		<node name="errorReadingZip" value="Грешка при отпакивању „%s“."/>
-		<node name="pluginNotFound" value="Нема додатка за „%s“."/>
-		<node name="unknownPluginType" value="Непозната врста додатка: %s."/>
-		<node name="fileNotFound" value="Не могу да пронађем датотеку: %s."/>
-		<node name="opfFileNotFound" value="Не могу да пронађем OPF у „%s“."/>
-		<node name="unsupportedFileFormat" value="Формат датотеке није подржан за „%s“."/>
-		<node name="errorParsingRtf" value="Грешка при рашчлањивању RTF-а у: %s."/>
-	</node>
 	<node name="links">
 		<node name="faqPage" value="http://fbreader.org/faq-page"/>
 	</node>
 	<node name="plugins" value="Install plugins" toBeTranslated="true">
+		<node name="noMorePlugins" value="We have no new plugins at the moment, sorry" toBeTranslated="true"/>
 		<node name="litres" value="LitRes" toBeTranslated="true">
 			<node name="summary" value="Russian book store" toBeTranslated="true"/>
 		</node>

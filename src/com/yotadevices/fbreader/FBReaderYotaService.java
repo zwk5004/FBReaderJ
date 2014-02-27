@@ -8,6 +8,10 @@ package com.yotadevices.fbreader;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -43,6 +47,7 @@ import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.fbreader.ActionCode;
 import org.geometerplus.fbreader.fbreader.FBReaderApp;
+import org.geometerplus.fbreader.fbreader.options.ViewOptions;
 import org.geometerplus.fbreader.fbreader.options.FooterOptions;
 import org.geometerplus.fbreader.fbreader.options.MiscOptions;
 
@@ -115,9 +120,6 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 			public void run() {
 			}
 		});
-		String screen = "Yota";
-		FBReaderApp.TextStyleCollection = new ZLTextStyleCollection(screen);
-		FBReaderApp.FooterOptions = new FooterOptions(screen);
 		((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
 			@Override
 			public void run() {
@@ -138,6 +140,21 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		Widget = null;
 		super.onBSDestroy();
 	}
+	
+	private static byte[] MD5(Bitmap image) {
+		// TODO: possible too large array(s)?
+		final int bytesNum = image.getWidth() * image.getHeight() * 2;
+		final ByteBuffer buffer = ByteBuffer.allocate(bytesNum);
+		image.copyPixelsToBuffer(buffer);
+		try {
+			final MessageDigest digest = MessageDigest.getInstance("MD5");
+			digest.update(buffer.array());
+			return digest.digest();
+		} catch (NoSuchAlgorithmException e) {
+			return null;
+		}
+	}
+
 
 	private class YotaBackScreenWidget extends ZLAndroidWidget {
 		private Bitmap myDefaultCoverBitmap;
@@ -147,11 +164,17 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		YotaBackScreenWidget(Context context) {
 			super(context);
 		}
+		
+		private volatile byte[] myStoredMD5 = null;
 
 		@Override
-		public void repaint() {
+		public synchronized void repaint() {
 			draw(myCanvas);
-			getBSDrawer().drawBitmap(0, 0, myBitmap, BSDrawer.Waveform.WAVEFORM_GC_PARTIAL);
+			final byte[] currentMD5 = MD5(myBitmap);
+			if (myStoredMD5 == null || !myStoredMD5.equals(currentMD5)) {
+				getBSDrawer().drawBitmap(0, 0, myBitmap, BSDrawer.Waveform.WAVEFORM_GC_PARTIAL);
+				myStoredMD5 = currentMD5;
+			}
 		}
 
 		@Override
@@ -219,8 +242,8 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	private void initBookView(final boolean refresh) {
 		if (myBitmap == null) {
 			myBitmap = Bitmap.createBitmap(
-					BSDrawer.SCREEN_WIDTH, BSDrawer.SCREEN_HEIGHT, Bitmap.Config.ARGB_8888
-					);
+				BSDrawer.SCREEN_WIDTH, BSDrawer.SCREEN_HEIGHT, Bitmap.Config.RGB_565
+			);
 			myCanvas = new Canvas(myBitmap);
 		}
 		if (Widget == null) {
@@ -299,7 +322,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		if (intent.hasExtra(KEY_BACK_SCREEN_IS_ACTIVE)) {
 			myBackScreenIsActive = intent.getBooleanExtra(KEY_BACK_SCREEN_IS_ACTIVE, false);
 		} else {
-			myBackScreenIsActive = new MiscOptions().YotaDrawOnBackScreen.getValue();
+			myBackScreenIsActive = new ViewOptions().YotaDrawOnBackScreen.getValue();
 		}
 		if (intent.hasExtra(KEY_CURRENT_BOOK)) {
 			myCurrentBook = SerializerUtil.deserializeBook(intent.getStringExtra(KEY_CURRENT_BOOK));

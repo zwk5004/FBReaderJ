@@ -23,15 +23,16 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.yotadevices.fbreader.FBReaderYotaService;
 import com.yotadevices.sdk.utils.RotationAlgorithm;
+import com.yotadevices.fbreader.FBReaderYotaService;
 
 import org.geometerplus.zlibrary.core.resources.ZLResource;
-import org.geometerplus.zlibrary.text.view.style.ZLTextStyleCollection;
+
 import org.geometerplus.zlibrary.ui.android.R;
-import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
+
 import org.geometerplus.fbreader.fbreader.FBReaderApp;
-import org.geometerplus.fbreader.fbreader.options.FooterOptions;
+
+import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 
 class YotaSwitchScreenAction extends FBAndroidAction {
 	private final boolean mySwitchToBack;
@@ -43,7 +44,7 @@ class YotaSwitchScreenAction extends FBAndroidAction {
 
 	@Override
 	public boolean isVisible() {
-		return FBReaderApp.MiscOptions.YotaDrawOnBackScreen.getValue() != mySwitchToBack;
+		return Reader.ViewOptions.YotaDrawOnBackScreen.getValue() != mySwitchToBack;
 	}
 
 	@Override
@@ -55,7 +56,7 @@ class YotaSwitchScreenAction extends FBAndroidAction {
 		final View mainView = BaseActivity.findViewById(R.id.main_view);
 		final View mainHiddenView = BaseActivity.findViewById(R.id.yota_main_hidden_view);
 
-		FBReaderApp.MiscOptions.YotaDrawOnBackScreen.setValue(toBack);
+		Reader.ViewOptions.YotaDrawOnBackScreen.setValue(toBack);
 		BaseActivity.refreshYotaScreen();
 
 		if (toBack) {
@@ -86,9 +87,6 @@ class YotaSwitchScreenAction extends FBAndroidAction {
 			});
 		}
 
-		final String screen = toBack ? "Yota" : "Base";
-		FBReaderApp.TextStyleCollection = new ZLTextStyleCollection(screen);
-		FBReaderApp.FooterOptions = new FooterOptions(screen);
 		Reader.clearTextCaches();
 		BaseActivity.refresh();
 	}

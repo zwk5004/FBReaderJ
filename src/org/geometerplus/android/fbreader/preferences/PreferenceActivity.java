@@ -91,15 +91,23 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 
 	@Override
 	protected void init(Intent intent) {
+		final Config config = Config.Instance();
+		config.requestAllValuesForGroup("Style");
+		config.requestAllValuesForGroup("Options");
+		config.requestAllValuesForGroup("LookNFeel");
+		config.requestAllValuesForGroup("Fonts");
+		config.requestAllValuesForGroup("Files");
+		config.requestAllValuesForGroup("Scrolling");
+		config.requestAllValuesForGroup("Colors");
 		setResult(FBReader.RESULT_REPAINT);
 
 		final ViewOptions viewOptions = new ViewOptions();
 		final MiscOptions miscOptions = new MiscOptions();
-		final FooterOptions footerOptions = FBReaderApp.FooterOptions;
+		final FooterOptions footerOptions = viewOptions.getFooterOptions();
 		final PageTurningOptions pageTurningOptions = new PageTurningOptions();
 		final ImageOptions imageOptions = new ImageOptions();
-		final ColorProfile profile = FBReaderApp.getColorProfile();
-		final ZLTextStyleCollection collection = FBReaderApp.TextStyleCollection;
+		final ColorProfile profile = viewOptions.getColorProfile();
+		final ZLTextStyleCollection collection = viewOptions.getTextStyleCollection();
 		final ZLKeyBindings keyBindings = new ZLKeyBindings();
 
 		final ZLAndroidLibrary androidLibrary = (ZLAndroidLibrary)ZLAndroidLibrary.Instance();

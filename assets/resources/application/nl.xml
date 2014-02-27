@@ -359,8 +359,8 @@
 			</node>
 			<node name="dontTurnScreenOff" value="Voorkom uitschakelen scherm">
 				<node name="0" value="Altijd"/>
-				<node name="25" value="Zolang batterijniveau hoger is dan 25%"/>
-				<node name="50" value="Zolang batterijniveau hoger is dan 50%"/>
+				<node name="25" value="Zolang batterijniveau hoger is dan 25%%"/>
+				<node name="50" value="Zolang batterijniveau hoger is dan 50%%"/>
 				<node name="100" value="Nooit"/>
 			</node>
 			<node name="dontTurnScreenOffDuringCharging" value="Voorkom uitschakelen scherm tijdens opladen">
@@ -571,17 +571,6 @@
 				<node name="wood" value="Hout"/>
 			</node>
 			<node name="backgroundColor" value="Achtergrondkleur"/>
-			<node name="selectionBackground" value="Selection background" toBeTranslated="true"/>
-			<node name="selectionForeground" value="Selected text" toBeTranslated="true"/>
-			<node name="text" value="Regular text" toBeTranslated="true"/>
-			<node name="hyperlink" value="Hyperlink text" toBeTranslated="true"/>
-			<node name="hyperlinkVisited" value="Visited hyperlink text" toBeTranslated="true"/>
-			<node name="highlighting" value="Search results background" toBeTranslated="true"/>
-			<node name="footer" value="Footer" toBeTranslated="true"/>
-			<node name="imagesBackground" value="Images Background" toBeTranslated="true">
-				<node name="summaryOn" value="Use background" toBeTranslated="true"/>
-				<node name="summaryOff" value="Do not use background" toBeTranslated="true"/>
-			</node>
 			<node name="selectionBackground" value="Selectie achtergrond"/>
 			<node name="selectionForeground" value="Geselecteerde tekst"/>
 			<node name="text" value="Normale tekst"/>
@@ -884,6 +873,15 @@
 		<node name="mainBookDirEditing" value="Editing of main directory will lead to loss of data. Continue?" toBeTranslated="true"/>
 	</node>
 	<node name="errorMessage">
+		<node name="nativeCodeFailure" value="Error %s in native code during reading '%s'" toBeTranslated="true"/>
+		<node name="errorReadingFile" value="Fout tijdens lezen van '%s'"/>
+		<node name="errorReadingZip" value="Fout tijdens uitpakken '%s'"/>
+		<node name="pluginNotFound" value="Geen plug-in voor '%s'"/>
+		<node name="unknownPluginType" value="Onbekend plug-in type: %s"/>
+		<node name="fileNotFound" value="Bestand niet gevonden: %s"/>
+		<node name="opfFileNotFound" value="OPF is niet gevonden in %s"/>
+		<node name="unsupportedFileFormat" value="Bestandsformaat van '%s' wordt niet ondersteund"/>
+		<node name="errorParsingRtf" value="RTF parse-fout in: %s"/>
 		<node name="cannotRunAndroidMarket" value="Geen toegang tot de Android Market. Installeer %s handmatig"/>
 		<node name="textNotFound" value="Er is geen passende tekst in het boek"/>
 		<node name="bookNotFound" value="Er zijn geen passende boeken in de bibliotheek"/>
@@ -927,20 +925,11 @@
 			<node name="title" value="FBReader probleem"/>
 		</node>
 	</node>
-	<node name="bookReadingException">
-		<node name="errorReadingFile" value="Fout tijdens lezen van '%s'"/>
-		<node name="errorReadingZip" value="Fout tijdens uitpakken '%s'"/>
-		<node name="pluginNotFound" value="Geen plug-in voor '%s'"/>
-		<node name="unknownPluginType" value="Onbekend plug-in type: %s"/>
-		<node name="fileNotFound" value="Bestand niet gevonden: %s"/>
-		<node name="opfFileNotFound" value="OPF is niet gevonden in %s"/>
-		<node name="unsupportedFileFormat" value="Bestandsformaat van '%s' wordt niet ondersteund"/>
-		<node name="errorParsingRtf" value="RTF parse-fout in: %s"/>
-	</node>
 	<node name="links">
 		<node name="faqPage" value="http://fbreader.org/faq-page"/>
 	</node>
 	<node name="plugins" value="Install plugins" toBeTranslated="true">
+		<node name="noMorePlugins" value="We have no new plugins at the moment, sorry" toBeTranslated="true"/>
 		<node name="litres" value="LitRes" toBeTranslated="true">
 			<node name="summary" value="Russian book store" toBeTranslated="true"/>
 		</node>
