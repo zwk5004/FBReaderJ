@@ -38,6 +38,10 @@ public abstract class PluginFormatPlugin extends FormatPlugin {
 	}
 
 	public abstract String getPackage();
+	
+	public boolean isYotaSupported() {
+		return false;
+	}
 
 	public ZLFile prepareFile(ZLFile f) {
 		if (f.getPath().contains(":")) {

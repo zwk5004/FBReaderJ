@@ -29,16 +29,16 @@ import org.geometerplus.zlibrary.core.library.ZLibrary;
 import org.geometerplus.zlibrary.core.options.*;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.util.*;
-
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenator;
 import org.geometerplus.zlibrary.text.model.ZLTextModel;
 import org.geometerplus.zlibrary.text.view.*;
-
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.bookmodel.*;
 import org.geometerplus.fbreader.formats.*;
 import org.geometerplus.fbreader.fbreader.options.*;
 import org.geometerplus.fbreader.formats.FormatPlugin;
+
+import android.util.Log;
 
 public final class FBReaderApp extends ZLApplication {
 	public final MiscOptions MiscOptions = new MiscOptions();
@@ -139,6 +139,7 @@ public final class FBReaderApp extends ZLApplication {
 		final FormatPlugin p = PluginCollection.Instance().getPlugin(bookToOpen.File);
 		if (p == null) return;
 		if (p.type() == FormatPlugin.Type.EXTERNAL) {
+			runAction(ActionCode.YOTA_SWITCH_TO_FRONT_SCREEN);
 			runWithMessage("extract", new Runnable() {
 				public void run() {
 					final ZLFile f = ((ExternalFormatPlugin)p).prepareFile(bookToOpen.File);
@@ -153,6 +154,9 @@ public final class FBReaderApp extends ZLApplication {
 			return;
 		}
 		if (p.type() == FormatPlugin.Type.PLUGIN) {
+			if (!((PluginFormatPlugin)p).isYotaSupported()) {
+				runAction(ActionCode.YOTA_SWITCH_TO_FRONT_SCREEN);
+			}
 			BookTextView.setModel(null);
 			FootnoteView.setModel(null);
 			clearTextCaches();
@@ -167,12 +171,17 @@ public final class FBReaderApp extends ZLApplication {
 				}
 				bm = new Bookmark(bookToOpen, "", pos, pos, "", false);
 			}
-			runWithMessage("loadingBook", new Runnable() {
-				public void run() {
-					final ZLFile f = ((PluginFormatPlugin)p).prepareFile(bookToOpen.File);
-					myPluginFileOpener.openFile(((PluginFormatPlugin)p).getPackage(), SerializerUtil.serialize(bm), SerializerUtil.serialize(bookToOpen));
-				}
-			}, postAction);
+			boolean open = ViewOptions.YotaDrawOnBackScreen.getValue() ^ !myWindow.isYotaService();
+			Log.d("fjgh", "hgkgjfhjkdyk");
+			if (myPluginFileOpener != null && open) {
+				Log.d("fjgh", "hfhfdhjfgjghhjkdyk");
+				runWithMessage("loadingBook", new Runnable() {
+					public void run() {
+						((PluginFormatPlugin)p).prepareFile(bookToOpen.File);
+						myPluginFileOpener.openFile(((PluginFormatPlugin)p).getPackage(), SerializerUtil.serialize(bm), SerializerUtil.serialize(bookToOpen));
+					}
+				}, postAction);
+			}
 			return;
 		}
 		if (Model != null && !Model.isValid()) {

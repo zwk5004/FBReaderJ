@@ -33,4 +33,6 @@ public interface ZLApplicationWindow {
 	void close();
 
 	int getBatteryLevel();
+	
+	boolean isYotaService();
 }

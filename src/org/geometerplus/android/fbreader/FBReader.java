@@ -46,27 +46,22 @@ import org.geometerplus.zlibrary.core.options.Config;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.util.MimeType;
 import org.geometerplus.zlibrary.core.view.ZLViewWidget;
-
 import org.geometerplus.zlibrary.text.view.ZLTextView;
-
 import org.geometerplus.zlibrary.ui.android.R;
 import org.geometerplus.zlibrary.ui.android.error.ErrorKeys;
 import org.geometerplus.zlibrary.ui.android.library.*;
 import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
 import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
-
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.bookmodel.BookModel;
 import org.geometerplus.fbreader.fbreader.*;
 import org.geometerplus.fbreader.fbreader.options.CancelMenuHelper;
 import org.geometerplus.fbreader.formats.*;
 import org.geometerplus.fbreader.tips.TipsManager;
-
 import org.geometerplus.android.fbreader.api.*;
 import org.geometerplus.android.fbreader.library.BookInfoActivity;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.android.fbreader.tips.TipsActivity;
-
 import org.geometerplus.android.util.*;
 
 public final class FBReader extends Activity implements ZLApplicationWindow {
@@ -559,6 +554,8 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		} else if ("android.fbreader.action.CLOSE".equals(intent.getAction())) {
 			myCancelCalled = true;
 			myCancelIntent = intent;
+		} else if ("android.fbreader.action.SWITCH_YOTA_SCREEN".equals(intent.getAction())) {
+			new YotaSwitchScreenAction(FBReader.this, myFBReaderApp, true).run();
 		} else if ("android.fbreader.action.PLUGIN_CRASH".equals(intent.getAction())) {
 			Log.d("fbj", "crash");
 			long bookid = intent.getLongExtra("BOOKID", -1);
@@ -694,6 +691,30 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		}
 	}
 
+	private void checkForPlugin() {
+		if (myFBReaderApp.Model != null && myFBReaderApp.Model.Book != null) {
+			final FormatPlugin p = PluginCollection.Instance().getPlugin(myFBReaderApp.Model.Book.File);
+			Log.d("fbj", "onresume: current book is: " + myFBReaderApp.Model.Book.File.getPath());
+			if (p.type() == FormatPlugin.Type.PLUGIN) {
+				if (myFBReaderApp.ViewOptions.YotaDrawOnBackScreen.getValue() &&
+						((PluginFormatPlugin) p).isYotaSupported()) {
+					myNeedToSkipPlugin = true;
+				}
+				if (!myNeedToSkipPlugin) {
+					Log.d("fbj", "opening book from onresume");
+					getCollection().bindToService(this, new Runnable() {
+						public void run() {
+							myFBReaderApp.openBook(myFBReaderApp.Model.Book, null, null);
+						}
+					});
+				} else {
+					Log.d("fbj", "skipping");
+				}
+			}
+		}
+		myNeedToSkipPlugin = false;
+	}
+	
 	@Override
 	protected void onResume() {
 		super.onResume();
@@ -748,23 +769,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			}
 			return;
 		} else {
-			if (myFBReaderApp.Model != null && myFBReaderApp.Model.Book != null) {
-				final FormatPlugin p = PluginCollection.Instance().getPlugin(myFBReaderApp.Model.Book.File);
-				Log.d("fbj", "onresume: current book is: " + myFBReaderApp.Model.Book.File.getPath());
-				if (p.type() == FormatPlugin.Type.PLUGIN) {
-					if (!myNeedToSkipPlugin) {
-						Log.d("fbj", "opening book from onresume");
-						getCollection().bindToService(this, new Runnable() {
-							public void run() {
-								myFBReaderApp.openBook(myFBReaderApp.Model.Book, null, null);
-							}
-						});
-					} else {
-						Log.d("fbj", "skipping");
-					}
-				}
-			}
-			myNeedToSkipPlugin = false;
+			checkForPlugin();
 		}
 
 		if (myNeedToOpenFile) {
@@ -1223,6 +1228,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 		} else {
 			myYotaWidget.stopForeground();
+			checkForPlugin();
 		}
 	}
 
@@ -1349,5 +1355,10 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		} catch (Throwable t) {
 			// ignore
 		}
+	}
+
+	@Override
+	public boolean isYotaService() {
+		return false;
 	}
 }

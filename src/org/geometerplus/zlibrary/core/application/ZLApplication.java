@@ -66,7 +66,7 @@ public abstract class ZLApplication {
 
 	public static final String NoAction = "none";
 
-	private volatile ZLApplicationWindow myWindow;
+	protected volatile ZLApplicationWindow myWindow;
 	private volatile ZLView myView;
 	private volatile String myTitle;
 
