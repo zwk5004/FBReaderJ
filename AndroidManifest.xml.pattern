@@ -7,8 +7,8 @@
 		android:installLocation="auto"
 >
 	<uses-sdk
-			android:minSdkVersion="17"
-			android:targetSdkVersion="17"
+			android:minSdkVersion="11"
+			android:targetSdkVersion="14"
 	/>
 	<supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true"/>
 	<uses-permission android:name="android.permission.INTERNET"/>
@@ -299,6 +299,7 @@
 		<activity android:name="org.geometerplus.android.fbreader.preferences.activityprefs.BooksDirectoryActivity" android:theme="@style/FBReader.Dialog" android:windowSoftInputMode="adjustPan" android:configChanges="orientation|keyboardHidden|screenSize" android:process=":preferences"/>
 		<activity android:name="org.geometerplus.android.fbreader.preferences.activityprefs.EditableSpinnerActivity" android:theme="@style/FBReader.Dialog" android:windowSoftInputMode="adjustPan" android:configChanges="orientation|keyboardHidden|screenSize" android:process=":preferences"/>
 		<activity android:name="com.paragon.dictionary.fbreader.OpenDictionaryActivity" android:theme="@style/FBReader.Transparent" android:configChanges="orientation|keyboardHidden|screenSize"/>
+		<service android:name="org.geometerplus.android.fbreader.httpd.DataService" android:launchMode="singleTask" android:process=":dataService" android:exported="false"/>
 		<service android:name="com.yotadevices.fbreader.FBReaderYotaService" android:exported="false" android:launchMode="singleTask" android:process=":yota"/>
 		<uses-library android:required="false" android:name="com.yotadevices.platinum"/>
 		<meta-data android:name="com.yotadevices.BS_ICON" android:resource="@drawable/fbreader_bs_icon"/>
