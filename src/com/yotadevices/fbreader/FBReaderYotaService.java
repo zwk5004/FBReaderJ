@@ -12,9 +12,10 @@ import java.math.BigInteger;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+
 import android.annotation.TargetApi;
-import android.app.Notification;
-import android.app.PendingIntent;
+import android.app.*;
 import android.content.*;
 import android.graphics.*;
 import android.net.Uri;
@@ -24,13 +25,17 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.widget.FrameLayout;
+
 import com.yotadevices.sdk.*;
 import com.yotadevices.sdk.utils.EinkUtils;
+
 import org.geometerplus.zlibrary.core.application.ZLApplicationWindow;
 import org.geometerplus.zlibrary.core.application.ZLKeyBindings;
+import org.geometerplus.zlibrary.core.filesystem.ZLFile;
 import org.geometerplus.zlibrary.core.image.ZLImage;
 import org.geometerplus.zlibrary.core.image.ZLLoadableImage;
 import org.geometerplus.zlibrary.core.options.Config;
+import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.util.MiscUtil;
 import org.geometerplus.zlibrary.core.view.ZLViewWidget;
 import org.geometerplus.zlibrary.text.view.style.ZLTextStyleCollection;
@@ -44,12 +49,14 @@ import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
 import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
 import org.geometerplus.android.fbreader.FBReader;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
+import org.geometerplus.android.fbreader.plugin.metainfoservice.MetaInfoReader;
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.fbreader.ActionCode;
 import org.geometerplus.fbreader.fbreader.FBReaderApp;
 import org.geometerplus.fbreader.fbreader.options.ViewOptions;
 import org.geometerplus.fbreader.fbreader.options.FooterOptions;
 import org.geometerplus.fbreader.fbreader.options.MiscOptions;
+import org.geometerplus.fbreader.formats.*;
 
 /**
  * @author ASazonov
@@ -60,14 +67,49 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 			"com.yotadevices.fbreader.backScreenIsActive";
 	public static final String KEY_CURRENT_BOOK =
 			"com.yotadevices.fbreader.currentBook";
-	
+
 	public static final String WIDGET_ACTION = "com.yotadevices.fbreader.widgetAction";
 	public static final String RESET = "reset";
 	public static final String REPAINT = "repaint";
 	public static final String ON_PREFERENCE_UPDATE = "onPreferenceUpdate";
 	public static final String START_FOREGROUND = "startForeground";
 	public static final String STOP_FOREGROUND = "stopForeground";
-	
+
+	private class PluginFileOpener implements FBReaderApp.PluginFileOpener {
+
+		public void openFile(String appData, String bookmark, String book) {
+			Book bookToOpen = SerializerUtil.deserializeBook(book);
+			ZLFile f = bookToOpen.File;
+			if (f == null) {
+				//				showErrorDialog("unzipFailed");//TODO
+				return;
+			}
+			//			Uri uri = Uri.parse("file://" + f.getPath());
+			final Intent LaunchIntent = new Intent("android.fbreader.action.VIEW_PLUGIN");
+			LaunchIntent.setPackage(appData);
+			//			LaunchIntent.setData(uri);
+			LaunchIntent.putExtra(FBReader.BOOKMARK_KEY, bookmark);
+			LaunchIntent.putExtra(FBReader.BOOK_KEY, book);
+			Log.d("fbj", book);
+			try {
+				final YotaPluginShadow s = myShadows.get(appData);
+				s.bindToService(FBReaderYotaService.this, new Runnable() {
+					@Override
+					public void run() {
+						Log.e("wtf", "FBJ");
+						s.setPath(LaunchIntent);
+					}
+				});
+				return;
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+
+	private HashMap<String, YotaPluginShadow> myShadows = new HashMap<String,  YotaPluginShadow>();
+
 
 	static ZLAndroidWidget Widget;
 	private Canvas myCanvas;
@@ -104,15 +146,16 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	@Override
 	public void onBSCreate() {
 		super.onBSCreate();
+		for (final String pack : PluginCollection.Instance().getPluginPackages()) {
+			YotaPluginShadow s = new YotaPluginShadow(pack);
+			myShadows.put(pack, s);
+			s.bindToService(this, null);//FIXME: remove this line?
+		}
 		myFBReaderApp = (FBReaderApp)FBReaderApp.Instance();
 		if (myFBReaderApp == null) {
 			myFBReaderApp = new FBReaderApp(new BookCollectionShadow());
 		}
-		((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
-			@Override
-			public void run() {
-				//				myFBReaderApp.openBook(myFBReaderApp.Collection.getRecentBook(0), null, null);
-			}});
+		myFBReaderApp.setPluginFileOpener(new PluginFileOpener());
 		myFBReaderApp.setWindow(this);
 		myFBReaderApp.initWindow();
 		Config.Instance().runOnStart(new Runnable() {
@@ -138,10 +181,19 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	@Override
 	public void onBSDestroy() {
 		Widget = null;
+		for (String pack : myShadows.keySet()) {
+			if (myShadows.get(pack) != null) {
+				myShadows.get(pack).unbind();
+			}
+		}
+		myShadows.clear();
 		super.onBSDestroy();
 	}
-	
+
 	private static byte[] MD5(Bitmap image) {
+		if (image == null) {
+			return new byte[0];
+		}
 		// TODO: possible too large array(s)?
 		final int bytesNum = image.getWidth() * image.getHeight() * 2;
 		final ByteBuffer buffer = ByteBuffer.allocate(bytesNum);
@@ -155,7 +207,6 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		}
 	}
 
-
 	private class YotaBackScreenWidget extends ZLAndroidWidget {
 		private Bitmap myDefaultCoverBitmap;
 		private Boolean myLastPaintWasActive;
@@ -164,7 +215,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		YotaBackScreenWidget(Context context) {
 			super(context);
 		}
-		
+
 		private volatile byte[] myStoredMD5 = null;
 
 		@Override
@@ -177,10 +228,36 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 			}
 		}
 
+		private String currentPluginPackage() {
+			final FormatPlugin p = PluginCollection.Instance().getPlugin(myFBReaderApp.Model.Book.File);
+			if (p.type() == FormatPlugin.Type.PLUGIN) {
+				PluginFormatPlugin pp = ((PluginFormatPlugin)p);
+				if (pp.isYotaSupported()) {
+					if (myShadows.containsKey(pp.getPackage())) {
+						return pp.getPackage();
+					}
+				}
+			}
+			return null;
+		}
+
 		@Override
 		protected void onDraw(final Canvas canvas) {
 			if (myBackScreenIsActive) {
-				super.onDraw(canvas);
+				final String pack = currentPluginPackage();
+				if (pack != null) {
+					final YotaPluginShadow s = myShadows.get(pack);
+					s.bindToService(FBReaderYotaService.this, new Runnable() {
+						@Override
+						public void run() {
+							Log.d("WWTTFF", pack);
+							new Exception().printStackTrace();
+							myBitmap = s.getBitmap();
+						}
+					});
+				} else {
+					super.onDraw(canvas);
+				}
 			} else {
 				if (myLastPaintWasActive == null ||
 						myLastPaintWasActive ||
@@ -237,13 +314,32 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 			}
 			return myDefaultCoverBitmap;
 		}
+
+		@Override
+		public void turnPageStatic(final boolean next) {
+			String pack = currentPluginPackage();
+			if (pack != null) {
+					final YotaPluginShadow s = myShadows.get(pack);
+					s.bindToService(FBReaderYotaService.this, new Runnable() {
+						@Override
+						public void run() {
+							Log.e("TURNPAGE", "INFBJ");
+							s.turnPage(next);
+							repaint();
+						}
+					});
+			} else {
+				super.turnPageStatic(next);
+			}
+		}
+
 	}
 
 	private void initBookView(final boolean refresh) {
 		if (myBitmap == null) {
 			myBitmap = Bitmap.createBitmap(
-				BSDrawer.SCREEN_WIDTH, BSDrawer.SCREEN_HEIGHT, Bitmap.Config.RGB_565
-			);
+					BSDrawer.SCREEN_WIDTH, BSDrawer.SCREEN_HEIGHT, Bitmap.Config.RGB_565
+					);
 			myCanvas = new Canvas(myBitmap);
 		}
 		if (Widget == null) {
@@ -301,9 +397,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 				((BookCollectionShadow)myFBReaderApp.Collection).bindToService(FBReaderYotaService.this, new Runnable() {
 					@Override
 					public void run() {
-						if (myFBReaderApp.Model.Book != null) {
-							myFBReaderApp.BookTextView.gotoPosition(myFBReaderApp.Collection.getStoredPosition(myFBReaderApp.Model.Book.getId()));
-						}
+						myFBReaderApp.openBook(null, null, null);
 					}
 				});
 				FBReaderYotaService.this.startForeground();
@@ -318,7 +412,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 			}
 			return;
 		}
-		
+
 		if (intent.hasExtra(KEY_BACK_SCREEN_IS_ACTIVE)) {
 			myBackScreenIsActive = intent.getBooleanExtra(KEY_BACK_SCREEN_IS_ACTIVE, false);
 		} else {
@@ -421,5 +515,10 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	public int getBatteryLevel() {
 		// TODO Auto-generated method stub
 		return 42;
+	}
+
+	@Override
+	public boolean isYotaService() {
+		return true;
 	}
 }

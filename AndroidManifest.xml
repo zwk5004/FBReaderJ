@@ -127,6 +127,10 @@
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>
 			<intent-filter>
+				<action android:name="android.fbreader.action.SWITCH_YOTA_SCREEN"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
+			<intent-filter>
 				<action android:name="android.fbreader.action.PLUGIN_CRASH"/>
 				<category android:name="android.intent.category.DEFAULT"/>
 			</intent-filter>

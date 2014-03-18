@@ -41,6 +41,11 @@ public class PdfPluginFormatPlugin extends PluginFormatPlugin {
 	}
 
 	@Override
+	public boolean isYotaSupported() {
+		return true;
+	}
+
+	@Override
 	public void readMetaInfo(Book book) throws BookReadingException {
 		//TODO
 	}
