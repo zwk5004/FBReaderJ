@@ -131,7 +131,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 				dialog.show();
 			}
 		}
-		
+
 		private void showErrorDialog(final String errName, final String appData, final long bookId) {
 			runOnUiThread(new Runnable() {
 				public void run() {
@@ -680,7 +680,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			}
 		}
 	}
-	
+
 	@Override
 	protected void onResume() {
 		super.onResume();
