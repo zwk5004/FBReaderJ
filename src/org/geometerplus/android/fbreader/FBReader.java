@@ -71,13 +71,13 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 				public void run() {
 					final String title = ZLResource.resource("errorMessage").getResource(errName).getValue();
 					final AlertDialog dialog = new AlertDialog.Builder(FBReader.this)
-					.setTitle(title)
-					.setIcon(0)
-					.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-						}
-					})
-					.create();
+						.setTitle(title)
+						.setIcon(0)
+						.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+							}
+						})
+						.create();
 					if (myIsPaused) {
 						myDialogToShow = dialog;
 					} else {
@@ -115,12 +115,12 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		private void showErrorDialog(final String errName) {
 			final String title = ZLResource.resource("errorMessage").getResource(errName).getValue();
 			final AlertDialog dialog = new AlertDialog.Builder(FBReader.this)
-			.setTitle(title)
-			.setIcon(0)
-			.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-				public void onClick(DialogInterface dialog, int which) {
-				}
-			}).create();
+				.setTitle(title)
+				.setIcon(0)
+				.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int which) {
+					}
+				}).create();
 			if (myIsPaused) {
 				myDialogToShow = dialog;
 			} else {
@@ -133,27 +133,27 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 				public void run() {
 					final String title = ZLResource.resource("errorMessage").getResource(errName).getValue();
 					final AlertDialog dialog = new AlertDialog.Builder(FBReader.this)
-					.setTitle(title)
-					.setIcon(0)
-					.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							Intent i = new Intent(Intent.ACTION_VIEW);
-							i.setData(Uri.parse("market://search?q=" + appData));
-							startActivity(i);
-						}
-					})
-					.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int which) {
-							onPluginAbsent(bookId);
-						}
-					})
-					.setOnCancelListener(new DialogInterface.OnCancelListener() {
-						@Override
-						public void onCancel(DialogInterface dialog) {
-							onPluginAbsent(bookId);
-						}
-					})
-					.create();
+						.setTitle(title)
+						.setIcon(0)
+						.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								Intent i = new Intent(Intent.ACTION_VIEW);
+								i.setData(Uri.parse("market://search?q=" + appData));
+								startActivity(i);
+							}
+						})
+						.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+							public void onClick(DialogInterface dialog, int which) {
+								onPluginAbsent(bookId);
+							}
+						})
+						.setOnCancelListener(new DialogInterface.OnCancelListener() {
+							@Override
+							public void onCancel(DialogInterface dialog) {
+								onPluginAbsent(bookId);
+							}
+						})
+						.create();
 					if (myIsPaused) {
 						myDialogToShow = dialog;
 					} else {
