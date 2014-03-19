@@ -53,6 +53,11 @@ public abstract class PluginFormatPlugin extends FormatPlugin {
 	}
 
 	@Override
+	public ZLImage readCover(ZLFile file) {
+		return new PluginImage(file, getPackage());
+	}
+
+	@Override
 	public EncodingCollection supportedEncodings() {
 		return new AutoEncodingCollection();
 	}

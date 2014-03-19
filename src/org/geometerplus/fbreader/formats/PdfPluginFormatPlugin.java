@@ -55,12 +55,6 @@ public class PdfPluginFormatPlugin extends PluginFormatPlugin {
 	}
 
 	@Override
-	public ZLImage readCover(ZLFile file) {
-		//TODO
-		return null;
-	}
-
-	@Override
 	public String readAnnotation(ZLFile file) {
 		//TODO
 		return null;
