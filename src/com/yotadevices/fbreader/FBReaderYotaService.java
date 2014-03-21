@@ -88,7 +88,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 			LaunchIntent.setPackage(appData);
 			//			LaunchIntent.setData(uri);
 			LaunchIntent.putExtra(FBReader.BOOK_KEY, SerializerUtil.serialize(book));
-			LaunchIntent.putExtra(FBReader.BOOK_KEY, SerializerUtil.serialize(bookmark));
+			LaunchIntent.putExtra(FBReader.BOOKMARK_KEY, SerializerUtil.serialize(bookmark));
 			try {
 				final YotaPluginShadow s = myShadows.get(appData);
 				s.bindToService(FBReaderYotaService.this, new Runnable() {
