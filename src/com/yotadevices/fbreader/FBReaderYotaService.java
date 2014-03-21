@@ -77,9 +77,8 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 
 	private class PluginFileOpener implements FBReaderApp.PluginFileOpener {
 
-		public void openFile(String appData, String bookmark, String book) {
-			Book bookToOpen = SerializerUtil.deserializeBook(book);
-			ZLFile f = bookToOpen.File;
+		public void openFile(String appData, Book book, Bookmark bookmark) {
+			ZLFile f = book.File;
 			if (f == null) {
 				//				showErrorDialog("unzipFailed");//TODO
 				return;
@@ -88,9 +87,8 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 			final Intent LaunchIntent = new Intent("android.fbreader.action.VIEW_PLUGIN");
 			LaunchIntent.setPackage(appData);
 			//			LaunchIntent.setData(uri);
-			LaunchIntent.putExtra(FBReader.BOOKMARK_KEY, bookmark);
-			LaunchIntent.putExtra(FBReader.BOOK_KEY, book);
-			Log.d("fbj", book);
+			LaunchIntent.putExtra(FBReader.BOOK_KEY, SerializerUtil.serialize(book));
+			LaunchIntent.putExtra(FBReader.BOOK_KEY, SerializerUtil.serialize(bookmark));
 			try {
 				final YotaPluginShadow s = myShadows.get(appData);
 				s.bindToService(FBReaderYotaService.this, new Runnable() {
@@ -521,5 +519,17 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	@Override
 	public boolean isYotaService() {
 		return true;
+	}
+
+	@Override
+	public void showErrorMessage(String resourceKey) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void showErrorMessage(String resourceKey, String parameter) {
+		// TODO Auto-generated method stub
+		
 	}
 }
