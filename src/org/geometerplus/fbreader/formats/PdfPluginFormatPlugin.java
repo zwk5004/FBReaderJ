@@ -28,7 +28,6 @@ import org.geometerplus.fbreader.book.BookUtil;
 import org.geometerplus.fbreader.bookmodel.BookReadingException;
 
 public class PdfPluginFormatPlugin extends PluginFormatPlugin {
-
 	private final String PACKAGE = "org.geometerplus.fbreader.plugin.pdf";
 	
 	public PdfPluginFormatPlugin() {
@@ -56,12 +55,6 @@ public class PdfPluginFormatPlugin extends PluginFormatPlugin {
 	}
 
 	@Override
-	public ZLImage readCover(ZLFile file) {
-		//TODO
-		return null;
-	}
-
-	@Override
 	public String readAnnotation(ZLFile file) {
 		//TODO
 		return null;
@@ -73,5 +66,4 @@ public class PdfPluginFormatPlugin extends PluginFormatPlugin {
 			book.addUid(BookUtil.createSHA256Uid(book.File));
 		}
 	}
-
 }

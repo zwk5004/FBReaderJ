@@ -2,8 +2,8 @@
 <manifest
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		package="org.geometerplus.zlibrary.ui.android"
-		android:versionCode="1091420"
-		android:versionName="2.0 beta 14"
+		android:versionCode="1090710"
+		android:versionName="1.9.7"
 		android:installLocation="auto"
 >
 	<uses-sdk
@@ -179,7 +179,7 @@
 			<intent-filter>
 				<action android:name="android.fbreader.action.OPEN_BOOKMARKS"/>
 				<category android:name="android.intent.category.DEFAULT"/>
-			</intent-filter>		
+			</intent-filter>
 		</activity>
 		<activity android:name="org.geometerplus.android.fbreader.BookmarkEditActivity" android:theme="@style/FBReader.Dialog" android:configChanges="orientation|keyboardHidden|screenSize"/>
 		<activity android:name="org.geometerplus.android.fbreader.preferences.PreferenceActivity" android:theme="@style/FBReader.Activity" android:configChanges="orientation|keyboardHidden|screenSize" android:process=":preferences">
@@ -303,7 +303,8 @@
 		<activity android:name="org.geometerplus.android.fbreader.preferences.activityprefs.BooksDirectoryActivity" android:theme="@style/FBReader.Dialog" android:windowSoftInputMode="adjustPan" android:configChanges="orientation|keyboardHidden|screenSize" android:process=":preferences"/>
 		<activity android:name="org.geometerplus.android.fbreader.preferences.activityprefs.EditableSpinnerActivity" android:theme="@style/FBReader.Dialog" android:windowSoftInputMode="adjustPan" android:configChanges="orientation|keyboardHidden|screenSize" android:process=":preferences"/>
 		<activity android:name="com.paragon.dictionary.fbreader.OpenDictionaryActivity" android:theme="@style/FBReader.Transparent" android:configChanges="orientation|keyboardHidden|screenSize"/>
-		<service android:name="com.yotadevices.fbreader.FBReaderYotaService" android:exported="false" android:launchMode="singleTask" android:process=":yota" />
+		<service android:name="org.geometerplus.android.fbreader.httpd.DataService" android:launchMode="singleTask" android:process=":dataService" android:exported="false"/>
+		<service android:name="com.yotadevices.fbreader.FBReaderYotaService" android:exported="false" android:launchMode="singleTask" android:process=":yota"/>
 		<uses-library android:required="false" android:name="com.yotadevices.platinum"/>
 		<meta-data android:name="com.yotadevices.BS_ICON" android:resource="@drawable/fbreader_bs_icon"/>
 		<meta-data android:name="com.yotadevices.BS_TITLE" android:value="FBReader"/>
