@@ -124,5 +124,6 @@ public class YotaPluginShadow implements ServiceConnection {
 
 	// method from ServiceConnection interface
 	public synchronized void onServiceDisconnected(ComponentName name) {
+		myInterface = null;
 	}
 }

@@ -250,8 +250,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 					s.bindToService(FBReaderYotaService.this, new Runnable() {
 						@Override
 						public void run() {
-							Log.d("WWTTFF", pack);
-							new Exception().printStackTrace();
+							Log.e("TESTTEST", "FBJ - GET BITMAP");
 							myBitmap = s.getBitmap();
 						}
 					});
@@ -451,8 +450,10 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 
 	private void handleGesture(Constants.Gestures action) {
 		if (action == Constants.Gestures.GESTURES_BS_RL) {
+			Log.e("TESTTEST", "FBJ - TURN PAGE FORWARD");
 			Widget.turnPageStatic(true);
 		} else if (action == Constants.Gestures.GESTURES_BS_LR) {
+			Log.e("TESTTEST", "FBJ - TURN PAGE BACK");
 			Widget.turnPageStatic(false);
 		}
 	}
