@@ -65,9 +65,7 @@ import org.geometerplus.fbreader.formats.*;
 @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
 public class FBReaderYotaService extends BSActivity implements ZLApplicationWindow {
 	public static final String KEY_BACK_SCREEN_IS_ACTIVE =
-			"com.yotadevices.fbreader.backScreenIsActive";
-	public static final String KEY_CURRENT_BOOK =
-			"com.yotadevices.fbreader.currentBook";
+		"com.yotadevices.fbreader.backScreenIsActive";
 
 	public static final String WIDGET_ACTION = "com.yotadevices.fbreader.widgetAction";
 	public static final String RESET = "reset";
@@ -77,7 +75,6 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	public static final String STOP_FOREGROUND = "stopForeground";
 
 	private class PluginFileOpener implements FBReaderApp.PluginFileOpener {
-
 		public void openFile(String appData, Book book, Bookmark bookmark) {
 			ZLFile f = book.File;
 			if (f == null) {
