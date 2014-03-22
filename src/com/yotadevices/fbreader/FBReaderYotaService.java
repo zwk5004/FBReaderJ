@@ -50,6 +50,8 @@ import org.geometerplus.fbreader.fbreader.ActionCode;
 import org.geometerplus.fbreader.fbreader.FBReaderApp;
 import org.geometerplus.fbreader.fbreader.options.ViewOptions;
 
+import org.geometerplus.android.fbreader.FBReaderIntents;
+
 /**
  * @author ASazonov
  */
