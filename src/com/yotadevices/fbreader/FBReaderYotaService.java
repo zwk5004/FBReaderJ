@@ -387,7 +387,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 				AndroidFontUtil.clearFontCache();
 				Widget.reset();
 			} else if (ON_PREFERENCE_UPDATE.equals(action)) {
-				Book book = SerializerUtil.deserializeBook(intent.getStringExtra(KEY_CURRENT_BOOK));
+				final Book book = FBReaderIntents.getBookExtra(intent);
 				AndroidFontUtil.clearFontCache();
 				myFBReaderApp.onBookUpdated(book);
 			} else if (START_FOREGROUND.equals(action)) {
@@ -417,7 +417,6 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		}
 		myCurrentBook = FBReaderIntents.getBookExtra(intent);
 		if (myCurrentBook != null) {
-			myCurrentBook = SerializerUtil.deserializeBook(intent.getStringExtra(KEY_CURRENT_BOOK));
 			((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
 				@Override
 				public void run() {

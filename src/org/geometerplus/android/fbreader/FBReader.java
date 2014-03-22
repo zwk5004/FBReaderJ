@@ -849,7 +849,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		AndroidFontUtil.clearFontCache();
 		myFBReaderApp.onBookUpdated(book);
 		if (myFBReaderApp.ViewOptions.YotaDrawOnBackScreen.getValue()) {
-			myYotaWidget.onPreferencesUpdate(SerializerUtil.serialize(book));
+			myYotaWidget.onPreferencesUpdate(book);
 		}
 	}
 

@@ -19,18 +19,20 @@
 
 package com.yotadevices.fbreader;
 
-import org.geometerplus.fbreader.book.Book;
-import org.geometerplus.fbreader.book.SerializerUtil;
-import org.geometerplus.zlibrary.core.view.ZLView.Direction;
-import org.geometerplus.zlibrary.core.view.ZLView.PageIndex;
-import org.geometerplus.zlibrary.core.view.*;
-import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
-
 import android.app.Service;
 import android.content.*;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+
+import org.geometerplus.zlibrary.core.view.ZLView.Direction;
+import org.geometerplus.zlibrary.core.view.ZLView.PageIndex;
+import org.geometerplus.zlibrary.core.view.*;
+import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
+
+import org.geometerplus.fbreader.book.Book;
+
+import org.geometerplus.android.fbreader.FBReaderIntents;
 
 public class WidgetShadow implements ZLViewWidget {
 	private Context myContext;
@@ -57,10 +59,10 @@ public class WidgetShadow implements ZLViewWidget {
 		myContext.startService(i);
 	}
 
-	public void onPreferencesUpdate(String book) {
+	public void onPreferencesUpdate(Book book) {
 		Intent i = new Intent(myContext, FBReaderYotaService.class);
 		i.putExtra(FBReaderYotaService.WIDGET_ACTION, FBReaderYotaService.ON_PREFERENCE_UPDATE);
-		i.putExtra(FBReaderYotaService.KEY_CURRENT_BOOK, book);
+		FBReaderIntents.putBookExtra(i, book);
 		myContext.startService(i);
 	}
 
