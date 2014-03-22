@@ -43,6 +43,7 @@ import org.geometerplus.zlibrary.ui.android.library.ZLAndroidLibrary;
 import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
 import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
 import org.geometerplus.android.fbreader.FBReader;
+import org.geometerplus.android.fbreader.FBReaderIntents;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.fbreader.ActionCode;
@@ -55,8 +56,6 @@ import org.geometerplus.fbreader.fbreader.options.ViewOptions;
 public class FBReaderYotaService extends BSActivity implements ZLApplicationWindow {
 	public static final String KEY_BACK_SCREEN_IS_ACTIVE =
 			"com.yotadevices.fbreader.backScreenIsActive";
-	public static final String KEY_CURRENT_BOOK =
-			"com.yotadevices.fbreader.currentBook";
 
 	static ZLAndroidWidget Widget;
 	private Canvas myCanvas;
@@ -333,8 +332,8 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		} else {
 			myBackScreenIsActive = new ViewOptions().YotaDrawOnBackScreen.getValue();
 		}
-		if (intent.hasExtra(KEY_CURRENT_BOOK)) {
-			myCurrentBook = SerializerUtil.deserializeBook(intent.getStringExtra(KEY_CURRENT_BOOK));
+		myCurrentBook = FBReaderIntents.getBookExtra(intent);
+		if (myCurrentBook != null) {
 			((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
 				@Override
 				public void run() {
