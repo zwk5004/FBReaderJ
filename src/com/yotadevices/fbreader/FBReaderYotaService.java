@@ -59,6 +59,8 @@ import org.geometerplus.fbreader.fbreader.options.FooterOptions;
 import org.geometerplus.fbreader.fbreader.options.MiscOptions;
 import org.geometerplus.fbreader.formats.*;
 
+import org.geometerplus.android.fbreader.FBReaderIntents;
+
 /**
  * @author ASazonov
  */
@@ -413,7 +415,8 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		} else {
 			myBackScreenIsActive = new ViewOptions().YotaDrawOnBackScreen.getValue();
 		}
-		if (intent.hasExtra(KEY_CURRENT_BOOK)) {
+		myCurrentBook = FBReaderIntents.getBookExtra(intent);
+		if (myCurrentBook != null) {
 			myCurrentBook = SerializerUtil.deserializeBook(intent.getStringExtra(KEY_CURRENT_BOOK));
 			((BookCollectionShadow)myFBReaderApp.Collection).bindToService(this, new Runnable() {
 				@Override
