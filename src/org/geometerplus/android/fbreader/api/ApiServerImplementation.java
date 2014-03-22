@@ -23,9 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.*;
 
 import android.annotation.TargetApi;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.Intent;
+import android.content.*;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Build;
@@ -44,24 +42,23 @@ import org.geometerplus.zlibrary.ui.android.R;
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.fbreader.*;
 
+import org.geometerplus.android.fbreader.FBReaderIntents;
 import org.geometerplus.android.fbreader.MenuItemData;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 
 public class ApiServerImplementation extends ApiInterface.Stub implements Api, ApiMethods {
 	public static void sendEvent(ContextWrapper context, String eventType) {
 		context.sendBroadcast(
-			new Intent(ApiClientImplementation.ACTION_API_CALLBACK)
+			new Intent(FBReaderIntents.Action.API_CALLBACK)
 				.putExtra(ApiClientImplementation.EVENT_TYPE, eventType)
 		);
 	}
 
 	private Context myContext;
-	private BookCollectionShadow myCollection;
 	private ZLKeyBindings myBindings;
 
-	public ApiServerImplementation(Context c, BookCollectionShadow bcs) {
+	public ApiServerImplementation(Context c) {
 		myContext = c;
-		myCollection = bcs;
 		myBindings = new ZLKeyBindings();
 	}
 
@@ -242,9 +239,6 @@ public class ApiServerImplementation extends ApiInterface.Stub implements Api, A
 					));
 				case DELETE_ZONEMAP:
 					deleteZoneMap(((ApiObject.String)parameters[0]).Value);
-					return ApiObject.Void.Instance;
-				case SET_STORED_POSITION:
-					storeTextPosition(((ApiObject.String)parameters[0]).Value, (TextPosition)parameters[1]);
 					return ApiObject.Void.Instance;
 				case GET_RESOURCE_VALUE:
 					return ApiObject.envelope(getResourceValue(((ApiObject.String)parameters[0]).Value));
@@ -616,18 +610,6 @@ public class ApiServerImplementation extends ApiInterface.Stub implements Api, A
 
 	public void setTapZoneAction(String name, int h, int v, boolean singleTap, String action) {
 		TapZoneMap.zoneMap(name).setActionForZone(h, v, singleTap, action);
-	}
-
-	public void storeTextPosition(final String file, TextPosition pos) {
-		Log.d("api", "set position of " + file);
-		Log.d("api", "setting: " + Integer.toString(pos.ParagraphIndex));
-		final ZLTextPosition res = new ZLTextFixedPosition(pos.ParagraphIndex, pos.ElementIndex, pos.CharIndex);
-		myCollection.bindToService(myContext, new Runnable() {
-			@Override
-			public void run() {
-				myCollection.storePosition(myCollection.getBookByFile(ZLFile.createFileByPath(file)).getId(), res);
-			}
-		});
 	}
 
 	public String getResourceValue(String s) {
