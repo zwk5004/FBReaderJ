@@ -48,6 +48,7 @@ import org.geometerplus.zlibrary.ui.android.library.ZLAndroidLibrary;
 import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
 import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
 import org.geometerplus.android.fbreader.FBReader;
+import org.geometerplus.android.fbreader.FBReaderIntents;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.android.fbreader.plugin.metainfoservice.MetaInfoReader;
 import org.geometerplus.fbreader.book.*;
@@ -84,18 +85,18 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 				return;
 			}
 			//			Uri uri = Uri.parse("file://" + f.getPath());
-			final Intent LaunchIntent = new Intent("android.fbreader.action.VIEW_PLUGIN");
-			LaunchIntent.setPackage(appData);
-			//			LaunchIntent.setData(uri);
-			LaunchIntent.putExtra(FBReader.BOOK_KEY, SerializerUtil.serialize(book));
-			LaunchIntent.putExtra(FBReader.BOOKMARK_KEY, SerializerUtil.serialize(bookmark));
+			final Intent launchIntent = new Intent("android.fbreader.action.VIEW_PLUGIN");
+			launchIntent.setPackage(appData);
+			//			launchIntent.setData(uri);
+			FBReaderIntents.putBookExtra(launchIntent, book);
+			FBReaderIntents.putBookmarkExtra(launchIntent, bookmark);
 			try {
 				final YotaPluginShadow s = myShadows.get(appData);
 				s.bindToService(FBReaderYotaService.this, new Runnable() {
 					@Override
 					public void run() {
 						Log.e("wtf", "FBJ");
-						s.setPath(LaunchIntent);
+						s.setPath(launchIntent);
 					}
 				});
 				return;
