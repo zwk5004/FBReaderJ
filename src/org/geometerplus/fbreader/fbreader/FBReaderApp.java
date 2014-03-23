@@ -29,11 +29,9 @@ import org.geometerplus.zlibrary.core.library.ZLibrary;
 import org.geometerplus.zlibrary.core.options.*;
 import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.util.*;
-
 import org.geometerplus.zlibrary.text.hyphenation.ZLTextHyphenator;
 import org.geometerplus.zlibrary.text.model.ZLTextModel;
 import org.geometerplus.zlibrary.text.view.*;
-
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.bookmodel.*;
 import org.geometerplus.fbreader.formats.*;
@@ -184,6 +182,9 @@ public final class FBReaderApp extends ZLApplication {
 			return;
 		}
 		if (p.type() == FormatPlugin.Type.PLUGIN) {
+			if (!((PluginFormatPlugin)p).isYotaSupported()) {
+				runAction(ActionCode.YOTA_SWITCH_TO_FRONT_SCREEN);
+			}
 			BookTextView.setModel(null);
 			FootnoteView.setModel(null);
 			clearTextCaches();
