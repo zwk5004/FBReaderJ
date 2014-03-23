@@ -902,7 +902,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		addMenuItem(menu, actionId, null, name, false);
 	}
 
-	private void addMenuItem(Menu menu, String actionId, Integer iconId) {
+	private void addMenuItem(Menu menu, String actionId, int iconId) {
 		addMenuItem(menu, actionId, iconId, null, myActionBarIsVisible);
 	}
 
@@ -928,6 +928,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 	private void setupMenu(Menu menu) {
 		fillMenu(menu, MenuData.topLevelNodes());
+
 		synchronized (myPluginActions) {
 			int index = 0;
 			for (PluginApi.ActionInfo info : myPluginActions) {
