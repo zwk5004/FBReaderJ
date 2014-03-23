@@ -913,7 +913,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	}
 
 	private void setupMenu(Menu menu) {
-		fillMenu(menu, MenuNode.getRoot());
+		fillMenu(menu, MenuData.getRoot());
 		synchronized (myPluginActions) {
 			int index = 0;
 			for (PluginApi.ActionInfo info : myPluginActions) {
