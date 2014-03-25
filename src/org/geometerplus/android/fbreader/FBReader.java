@@ -63,6 +63,7 @@ import org.geometerplus.fbreader.formats.*;
 import org.geometerplus.fbreader.tips.TipsManager;
 
 import org.geometerplus.android.fbreader.api.*;
+import org.geometerplus.android.fbreader.httpd.DataService;
 import org.geometerplus.android.fbreader.library.BookInfoActivity;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.android.fbreader.tips.TipsActivity;
@@ -200,6 +201,8 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	private volatile boolean myShowActionBarFlag;
 	private volatile boolean myActionBarIsVisible;
 
+	final DataService.Connection DataConnection = new DataService.Connection();
+
 	private boolean myIsPaused = false;
 	private AlertDialog myDialogToShow = null;
 
@@ -321,7 +324,11 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		super.onCreate(icicle);
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler(this));
 
-		startService(new Intent(this, org.geometerplus.android.fbreader.httpd.DataService.class));
+		bindService(
+			new Intent(this, DataService.class),
+			DataConnection,
+			DataService.BIND_AUTO_CREATE
+		);
 
 		final Config config = Config.Instance();
 		config.runOnStart(new Runnable() {
@@ -769,7 +776,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	@Override
 	protected void onDestroy() {
 		getCollection().unbind();
-		stopService(new Intent(this, org.geometerplus.android.fbreader.httpd.DataService.class));
+		unbindService(DataConnection);
 		super.onDestroy();
 	}
 
