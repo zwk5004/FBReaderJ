@@ -59,7 +59,7 @@ import org.geometerplus.fbreader.fbreader.options.FooterOptions;
 import org.geometerplus.fbreader.fbreader.options.MiscOptions;
 import org.geometerplus.fbreader.formats.*;
 
-import org.geometerplus.android.fbreader.FBReaderIntents;
+import org.geometerplus.android.fbreader.api.FBReaderIntents;
 
 /**
  * @author ASazonov
