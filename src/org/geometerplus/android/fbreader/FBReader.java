@@ -972,7 +972,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 	private NavigationPopup myNavigationPopup;
 
-	boolean barsAreShown() {
+	public boolean barsAreShown() {
 		return myNavigationPopup != null;
 	}
 
