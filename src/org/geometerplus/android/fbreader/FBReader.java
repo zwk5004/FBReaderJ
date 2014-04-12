@@ -278,6 +278,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 						}
 					}
 				});
+				AndroidFontUtil.clearFontCache();
 			}
 		});
 	}
