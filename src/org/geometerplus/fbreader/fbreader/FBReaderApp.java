@@ -264,6 +264,7 @@ public final class FBReaderApp extends ZLApplication {
 					FootnoteView.gotoPosition(label.ParagraphIndex, 0, 0);
 				}
 				getViewWidget().repaint();
+				storePosition();
 			}
 		}
 	}
@@ -454,6 +455,7 @@ public final class FBReaderApp extends ZLApplication {
 			setView(FootnoteView);
 		}
 		getViewWidget().repaint();
+		storePosition();
 	}
 
 	public void showBookTextView() {
@@ -588,10 +590,5 @@ public final class FBReaderApp extends ZLApplication {
 			clearTextCaches();
 			getViewWidget().repaint();
 		}
-	}
-
-	public void onRepaintFinished() {
-		super.onRepaintFinished();
-		storePosition();
 	}
 }
