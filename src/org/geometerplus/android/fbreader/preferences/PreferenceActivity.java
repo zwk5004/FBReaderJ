@@ -167,7 +167,7 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			directoriesScreen.Resource, "bookPath", Paths.BookPathOption, libraryUpdater
 		));
 		directoriesScreen.addPreference(myChooserCollection.createPreference(
-			directoriesScreen.Resource, "downloadDir", Paths.DownloadsDirectoryOption(), libraryUpdater
+			directoriesScreen.Resource, "downloadDir", Paths.DownloadsDirectoryOption, libraryUpdater
 		));
 		directoriesScreen.addPreference(myChooserCollection.createPreference(
 			directoriesScreen.Resource, "fontPath", Paths.FontPathOption, null
@@ -176,7 +176,7 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			directoriesScreen.Resource, "wallpaperPath", Paths.WallpaperPathOption, null
 		));
 		directoriesScreen.addPreference(myChooserCollection.createPreference(
-			directoriesScreen.Resource, "tempDir", Paths.TempDirectoryOption(), null
+			directoriesScreen.Resource, "tempDir", Paths.TempDirectoryOption, null
 		));
 */
 
