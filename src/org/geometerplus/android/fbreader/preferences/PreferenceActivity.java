@@ -122,7 +122,6 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			String.valueOf(new DecimalFormatSymbols(Locale.getDefault()).getDecimalSeparator());
 
 		final Screen directoriesScreen = createPreferenceScreen("directories");
-<<<<<<< HEAD
 		directoriesScreen.addPreference(new ZLBookDirActivityPreference(
 			this, new OptionHolder(Paths.BookPathOption) {
 				@Override
