@@ -261,7 +261,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 				myBook = null;
 			}
 		}
-		Config.Instance().runOnStart(new Runnable() {
+		Config.Instance().runOnConnect(new Runnable() {
 			public void run() {
 				myFBReaderApp.openBook(myBook, bookmark, new Runnable() {
 					public void run() {
@@ -328,7 +328,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		);
 
 		final Config config = Config.Instance();
-		config.runOnStart(new Runnable() {
+		config.runOnConnect(new Runnable() {
 			public void run() {
 				config.requestAllValuesForGroup("Options");
 				config.requestAllValuesForGroup("Style");
@@ -585,7 +585,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 		final ZLAndroidLibrary zlibrary = getZLibrary();
 
-		Config.Instance().runOnStart(new Runnable() {
+		Config.Instance().runOnConnect(new Runnable() {
 			public void run() {
 				final boolean showStatusBar = zlibrary.ShowStatusBarOption.getValue();
 				final boolean showActionBar = zlibrary.ShowActionBarOption.getValue();
@@ -692,7 +692,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		super.onResume();
 
 		myStartTimer = true;
-		Config.Instance().runOnStart(new Runnable() {
+		Config.Instance().runOnConnect(new Runnable() {
 			public void run() {
 				final int brightnessLevel =
 						getZLibrary().ScreenBrightnessLevelOption.getValue();
