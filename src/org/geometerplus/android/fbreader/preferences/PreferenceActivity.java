@@ -110,11 +110,13 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 		directoriesScreen.addPreference(myChooserCollection.createPreference(
 			directoriesScreen.Resource, "downloadDir", Paths.DownloadsDirectoryOption, libraryUpdater
 		));
+		final PreferenceSet fontReloader = new PreferenceSet.Reloader();
 		directoriesScreen.addPreference(myChooserCollection.createPreference(
-			directoriesScreen.Resource, "fontPath", Paths.FontPathOption, null
+			directoriesScreen.Resource, "fontPath", Paths.FontPathOption, fontReloader
 		));
+		final PreferenceSet wallpaperReloader = new PreferenceSet.Reloader();
 		directoriesScreen.addPreference(myChooserCollection.createPreference(
-			directoriesScreen.Resource, "wallpaperPath", Paths.WallpaperPathOption, null
+			directoriesScreen.Resource, "wallpaperPath", Paths.WallpaperPathOption, wallpaperReloader
 		));
 		directoriesScreen.addPreference(myChooserCollection.createPreference(
 			directoriesScreen.Resource, "tempDir", Paths.TempDirectoryOption, null
@@ -204,7 +206,7 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 				@Override
 				protected void onClick() {
 					super.onClick();
-					einkPreferences.update();
+					einkPreferences.run();
 				}
 			});
 
@@ -214,7 +216,7 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			einkScreen.addPreference(updateIntervalPreference);
 
 			einkPreferences.add(updateIntervalPreference);
-			einkPreferences.update();
+			einkPreferences.run();
 		}
 
 		final Screen textScreen = createPreferenceScreen("text");
@@ -235,7 +237,7 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			baseStyle.FontFamilyOption, false
 		);
 		textScreen.addPreference(fontPreference);
-		//fontDirPreference.setBoundPref(fontPreference);
+		fontReloader.add(fontPreference);
 
 		textScreen.addPreference(new ZLIntegerRangePreference(
 			this, textScreen.Resource.getResource("fontSize"),
@@ -403,16 +405,16 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			@Override
 			protected void onDialogClosed(boolean result) {
 				super.onDialogClosed(result);
-				bgPreferences.update();
+				bgPreferences.run();
 			}
 		};
 		colorsScreen.addPreference(wallpaperPreference);
-		//wallpaperDirPreference.setBoundPref(wallpaperPreference);
+		wallpaperReloader.add(wallpaperPreference);
 
 		bgPreferences.add(
 			colorsScreen.addOption(profile.BackgroundOption, "backgroundColor")
 		);
-		bgPreferences.update();
+		bgPreferences.run();
 		colorsScreen.addOption(profile.HighlightingOption, "highlighting");
 		colorsScreen.addOption(profile.RegularTextOption, "text");
 		colorsScreen.addOption(profile.HyperlinkTextOption, "hyperlink");
@@ -453,7 +455,7 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			@Override
 			protected void onDialogClosed(boolean result) {
 				super.onDialogClosed(result);
-				footerPreferences.update();
+				footerPreferences.run();
 			}
 		});
 
@@ -471,7 +473,7 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 			this, statusLineScreen.Resource, "font",
 			footerOptions.Font, false
 		)));
-		footerPreferences.update();
+		footerPreferences.run();
 
 		/*
 		final Screen colorProfileScreen = createPreferenceScreen("colorProfile");
@@ -511,7 +513,7 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 					keyBindings.bindKey(KeyEvent.KEYCODE_VOLUME_DOWN, false, FBReaderApp.NoAction);
 					keyBindings.bindKey(KeyEvent.KEYCODE_VOLUME_UP, false, FBReaderApp.NoAction);
 				}
-				volumeKeysPreferences.update();
+				volumeKeysPreferences.run();
 			}
 		});
 		volumeKeysPreferences.add(scrollingScreen.addPreference(new ZLCheckBoxPreference(
@@ -535,7 +537,7 @@ public class PreferenceActivity extends ZLPreferenceActivity {
 				}
 			}
 		}));
-		volumeKeysPreferences.update();
+		volumeKeysPreferences.run();
 
 		scrollingScreen.addOption(pageTurningOptions.Animation, "animation");
 		scrollingScreen.addPreference(new AnimationSpeedPreference(
