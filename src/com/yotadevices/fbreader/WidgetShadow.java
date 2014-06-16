@@ -32,7 +32,7 @@ import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
 
 import org.geometerplus.fbreader.book.Book;
 
-import org.geometerplus.android.fbreader.FBReaderIntents;
+import org.geometerplus.android.fbreader.api.FBReaderIntents;
 
 public class WidgetShadow implements ZLViewWidget {
 	private Context myContext;

@@ -48,7 +48,7 @@ import org.geometerplus.zlibrary.ui.android.library.ZLAndroidLibrary;
 import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
 import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
 import org.geometerplus.android.fbreader.FBReader;
-import org.geometerplus.android.fbreader.FBReaderIntents;
+import org.geometerplus.android.fbreader.api.FBReaderIntents;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
 import org.geometerplus.android.fbreader.plugin.metainfoservice.MetaInfoReader;
 import org.geometerplus.fbreader.book.*;
