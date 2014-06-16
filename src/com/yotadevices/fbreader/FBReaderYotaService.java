@@ -156,7 +156,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		myFBReaderApp.setPluginFileOpener(new PluginFileOpener());
 		myFBReaderApp.setWindow(this);
 		myFBReaderApp.initWindow();
-		Config.Instance().runOnStart(new Runnable() {
+		Config.Instance().runOnConnect(new Runnable() {
 			@Override
 			public void run() {
 			}
@@ -462,9 +462,16 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	}
 
 	@Override
-	public void runWithMessage(String key, Runnable runnable,
-			Runnable postAction) {
-		runnable.run();
+	public FBReaderApp.SynchronousExecutor createExecutor(String key) {
+		return new FBReaderApp.SynchronousExecutor() {
+			public void execute(Runnable action, Runnable uiPostAction) {
+				action.run();
+			}
+
+			public void executeAux(String key, Runnable action) {
+				action.run();
+			}
+		};
 	}
 
 	@Override
