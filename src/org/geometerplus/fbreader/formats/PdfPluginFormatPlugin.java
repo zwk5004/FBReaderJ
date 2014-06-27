@@ -19,13 +19,19 @@
 
 package org.geometerplus.fbreader.formats;
 
+import java.io.IOException;
+import java.util.Collections;
+
 import org.geometerplus.zlibrary.core.drm.EncryptionMethod;
 import org.geometerplus.zlibrary.core.filesystem.*;
 import org.geometerplus.zlibrary.core.image.ZLImage;
-
-import org.geometerplus.fbreader.book.Book;
-import org.geometerplus.fbreader.book.BookUtil;
+import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.bookmodel.BookReadingException;
+import org.pdfparse.exception.EParseError;
+import org.pdfparse.model.PDFDocInfo;
+import org.pdfparse.model.PDFDocument;
+
+import android.util.Log;
 
 public class PdfPluginFormatPlugin extends PluginFormatPlugin {
 	private final String PACKAGE = "org.geometerplus.fbreader.plugin.pdf";
@@ -46,7 +52,19 @@ public class PdfPluginFormatPlugin extends PluginFormatPlugin {
 
 	@Override
 	public void readMetainfo(Book book) throws BookReadingException {
-		//TODO
+		try {
+			PDFDocument doc = new PDFDocument(book.File.getUrl().replaceAll("file://", ""));
+			PDFDocInfo info = doc.getDocumentInfo();
+			book.setTitle(info.getTitle());
+			Log.d("PDFPARSE", info.getTitle());
+			book.setAuthors(Collections.singletonList(new Author(info.getAuthor(), "")));
+		} catch (EParseError e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
@@ -58,7 +76,7 @@ public class PdfPluginFormatPlugin extends PluginFormatPlugin {
 	@Override
 	public void readUids(Book book) throws BookReadingException {
 		if (book.uids().isEmpty()) {
-			book.addUid(BookUtil.createSHA256Uid(book.File));
+			book.addUid(BookUtil.createUid(book.File, "SHA-256"));
 		}
 	}
 }
