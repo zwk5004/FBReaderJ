@@ -65,7 +65,7 @@ public class BookInfoActivity extends Activity implements MenuItem.OnMenuItemCli
 	private final ZLResource myResource = ZLResource.resource("bookInfo");
 	private Book myBook;
 	private boolean myDontReloadBook;
-	
+
 	private HashMap<String, MetaInfoReader> myServices = new HashMap<String, MetaInfoReader>();
 	private List<ServiceConnection> myServiceConnections = new LinkedList<ServiceConnection>();
 

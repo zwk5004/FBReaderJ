@@ -37,11 +37,11 @@ public abstract class PluginFormatPlugin extends FormatPlugin {
 	}
 
 	public abstract String getPackage();
-	
+
 	public boolean isYotaSupported() {
 		return false;
 	}
-	
+
 	@Override
 	public Type type() {
 		return Type.PLUGIN;
