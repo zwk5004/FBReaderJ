@@ -582,8 +582,8 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 					Log.d("fbreader", "killing plugin");
 					if (myFBReaderApp.Model != null && myFBReaderApp.Model.Book != null) {
 						final FormatPlugin p = PluginCollection.Instance().getPlugin(myFBReaderApp.Model.Book.File);
-						if (p.type() == FormatPlugin.Type.PLUGIN) {
-							String pack = ((PluginFormatPlugin)p).getPackage();
+						if (p.type() == FormatPlugin.Type.EXTERNAL) {
+							String pack = ((ExternalFormatPlugin)p).getPackage();
 							final Intent i = new Intent("android.fbreader.action.KILL_PLUGIN");
 							i.setPackage(pack);
 							Log.d("fbreader", pack);
@@ -701,9 +701,9 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		if (myFBReaderApp.Model != null && myFBReaderApp.Model.Book != null) {
 			final FormatPlugin p = PluginCollection.Instance().getPlugin(myFBReaderApp.Model.Book.File);
 			Log.d("fbj", "onresume: current book is: " + myFBReaderApp.Model.Book.File.getPath());
-			if (p.type() == FormatPlugin.Type.PLUGIN) {
+			if (p.type() == FormatPlugin.Type.EXTERNAL) {
 				if (myFBReaderApp.ViewOptions.YotaDrawOnBackScreen.getValue() &&
-						((PluginFormatPlugin) p).isYotaSupported()) {
+						((ExternalFormatPlugin) p).isYotaSupported()) {
 					myNeedToSkipPlugin = true;
 				}
 				if (!myNeedToSkipPlugin) {

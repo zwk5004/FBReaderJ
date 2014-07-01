@@ -57,8 +57,8 @@ public class PluginCollection {
 
 	private PluginCollection() {
 		addPlugin(new MobipocketPlugin());
-		addPlugin(new PdfPluginFormatPlugin());
-		addPlugin(new DjvuPluginFormatPlugin());
+		addPlugin(new PdfExternalFormatPlugin());
+		addPlugin(new DjvuExternalFormatPlugin());
 	}
 
 	private void addPlugin(FormatPlugin plugin) {
@@ -73,8 +73,8 @@ public class PluginCollection {
 
 	public List<String> getPluginPackages() {
 		ArrayList<String> list = new ArrayList<String>();
-		for (FormatPlugin p : myPlugins.get(FormatPlugin.Type.PLUGIN)) {
-			list.add(((PluginFormatPlugin)p).getPackage());
+		for (FormatPlugin p : myPlugins.get(FormatPlugin.Type.EXTERNAL)) {
+			list.add(((ExternalFormatPlugin)p).getPackage());
 		}
 		return list;
 	}
@@ -100,7 +100,7 @@ public class PluginCollection {
 		switch (formatType) {
 			case NONE:
 				return null;
-			case EXTERNAL:
+			case EXTERNAL_PROGRAM:
 				return getOrCreateExternalPlugin(fileType);
 			case ANY:
 			{
@@ -109,7 +109,7 @@ public class PluginCollection {
 					p = getPlugin(fileType, FormatPlugin.Type.JAVA);
 				}
 				if (p == null) {
-					p = getPlugin(fileType, FormatPlugin.Type.PLUGIN);
+					p = getPlugin(fileType, FormatPlugin.Type.EXTERNAL);
 				}
 				return p;
 			}
@@ -131,7 +131,7 @@ public class PluginCollection {
 
 	private FormatPlugin getOrCreateExternalPlugin(FileType fileType) {
 		boolean exists = true;
-		final List<FormatPlugin> list = myPlugins.get(FormatPlugin.Type.EXTERNAL);
+		final List<FormatPlugin> list = myPlugins.get(FormatPlugin.Type.EXTERNAL_PROGRAM);
 		if (list == null) {
 			exists = false;
 		}
@@ -149,9 +149,9 @@ public class PluginCollection {
 			builtInPlugin = getPlugin(fileType, FormatPlugin.Type.JAVA);
 		}
 		if (builtInPlugin != null) {
-			plugin = new ExternalFormatPlugin(fileType.Id, builtInPlugin);
+			plugin = new ExternalProgramFormatPlugin(fileType.Id, builtInPlugin);
 		} else {
-			plugin = new ExternalFormatPlugin(fileType.Id);
+			plugin = new ExternalProgramFormatPlugin(fileType.Id);
 		}
 		addPlugin(plugin);
 		return plugin;

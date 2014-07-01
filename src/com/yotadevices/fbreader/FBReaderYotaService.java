@@ -228,8 +228,8 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 
 		private String currentPluginPackage() {
 			final FormatPlugin p = PluginCollection.Instance().getPlugin(myFBReaderApp.Model.Book.File);
-			if (p.type() == FormatPlugin.Type.PLUGIN) {
-				PluginFormatPlugin pp = ((PluginFormatPlugin)p);
+			if (p.type() == FormatPlugin.Type.EXTERNAL) {
+				ExternalFormatPlugin pp = ((ExternalFormatPlugin)p);
 				if (pp.isYotaSupported()) {
 					if (myShadows.containsKey(pp.getPackage())) {
 						return pp.getPackage();
