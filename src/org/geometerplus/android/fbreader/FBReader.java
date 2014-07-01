@@ -61,6 +61,7 @@ import org.geometerplus.fbreader.bookmodel.BookModel;
 import org.geometerplus.fbreader.fbreader.*;
 import org.geometerplus.fbreader.fbreader.options.CancelMenuHelper;
 import org.geometerplus.fbreader.formats.*;
+import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
 import org.geometerplus.fbreader.tips.TipsManager;
 import org.geometerplus.android.fbreader.api.*;
 import org.geometerplus.android.fbreader.httpd.DataService;
