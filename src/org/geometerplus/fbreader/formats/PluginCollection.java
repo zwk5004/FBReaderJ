@@ -100,7 +100,7 @@ public class PluginCollection {
 		switch (formatType) {
 			case NONE:
 				return null;
-			case EXTERNAL:
+			case EXTERNAL_PROGRAM:
 				return getOrCreateExternalProgramPlugin(fileType);
 			case ANY:
 			{
