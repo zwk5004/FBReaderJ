@@ -193,7 +193,7 @@ public class Book extends TitledEntity {
 		myIsSaved = false;
 
 		final FileType fileType = FileTypeCollection.Instance.typeForFile(File);
-		final FormatPlugin fplugin = PluginCollection.Instance().getPlugin(fileType, FormatPlugin.Type.PLUGIN);
+		final FormatPlugin fplugin = PluginCollection.Instance().getPlugin(fileType, FormatPlugin.Type.EXTERNAL);
 		if (fplugin != null) {
 			try {
 				plugin.readMetainfo(this);
@@ -208,7 +208,7 @@ public class Book extends TitledEntity {
 
 		if (isTitleEmpty()) {
 			final String fileName = File.getShortName();
-			final int index = (plugin.type() == FormatPlugin.Type.EXTERNAL ? -1 : fileName.lastIndexOf('.'));
+			final int index = (plugin.type() == FormatPlugin.Type.EXTERNAL_PROGRAM ? -1 : fileName.lastIndexOf('.'));
 			setTitle(index > 0 ? fileName.substring(0, index) : fileName);
 		}
 	}
