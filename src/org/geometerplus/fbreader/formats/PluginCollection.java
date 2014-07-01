@@ -131,7 +131,7 @@ public class PluginCollection {
 
 	private FormatPlugin getOrCreateExternalPlugin(FileType fileType) {
 		boolean exists = true;
-		final List<FormatPlugin> list = myPlugins.get(FormatPlugin.Type.EXTERNAL);
+		final List<FormatPlugin> list = myPlugins.get(FormatPlugin.Type.EXTERNAL_PROGRAM);
 		if (list == null) {
 			exists = false;
 		}

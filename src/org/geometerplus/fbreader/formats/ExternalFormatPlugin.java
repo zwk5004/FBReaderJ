@@ -80,7 +80,7 @@ public class ExternalFormatPlugin extends FormatPlugin {
 
 	@Override
 	public Type type() {
-		return Type.EXTERNAL;
+		return Type.EXTERNAL_PROGRAM;
 	}
 
 	@Override
