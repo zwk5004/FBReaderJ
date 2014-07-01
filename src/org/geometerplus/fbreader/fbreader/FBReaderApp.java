@@ -172,7 +172,7 @@ public final class FBReaderApp extends ZLApplication {
 			final SynchronousExecutor executor = createExecutor("extract");
 			executor.execute(new Runnable() {
 				public void run() {
-					final ZLFile f = ((ExternalFormatPlugin)p).prepareFile(bookToOpen.File);
+					final ZLFile f = ((ExternalProgramFormatPlugin)p).prepareFile(bookToOpen.File);
 					if (myExternalFileOpener.openFile(f, Formats.filetypeOption(FileTypeCollection.Instance.typeForFile(bookToOpen.File).Id).getValue())) {
 						Collection.addBookToRecentList(bookToOpen);
 						closeWindow();
@@ -183,8 +183,8 @@ public final class FBReaderApp extends ZLApplication {
 			}, postAction);
 			return;
 		}
-		if (p.type() == FormatPlugin.Type.PLUGIN) {
-			if (!((PluginFormatPlugin)p).isYotaSupported()) {
+		if (p.type() == FormatPlugin.Type.EXTERNAL) {
+			if (!((ExternalFormatPlugin)p).isYotaSupported()) {
 				runAction(ActionCode.YOTA_SWITCH_TO_FRONT_SCREEN);
 			}
 			BookTextView.setModel(null);
@@ -204,7 +204,7 @@ public final class FBReaderApp extends ZLApplication {
 			final SynchronousExecutor executor = createExecutor("loadingBook");
 			executor.execute(new Runnable() {
 				public void run() {
-					final PluginFormatPlugin pfp = (PluginFormatPlugin)p;
+					final ExternalFormatPlugin pfp = (ExternalFormatPlugin)p;
 					myPluginFileOpener.openFile(pfp.getPackage(), bookToOpen, bm);
 				}
 			}, postAction);

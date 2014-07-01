@@ -21,98 +21,41 @@ package org.geometerplus.fbreader.formats;
 
 import java.io.*;
 
-import org.geometerplus.zlibrary.core.drm.EncryptionMethod;
-import org.geometerplus.zlibrary.core.filesystem.*;
-import org.geometerplus.zlibrary.core.encodings.*;
-import org.geometerplus.zlibrary.core.image.ZLImage;
-import org.geometerplus.zlibrary.core.options.ZLStringOption;
+import org.geometerplus.zlibrary.core.filesystem.ZLFile;
+import org.geometerplus.zlibrary.core.encodings.AutoEncodingCollection;
 
-import org.geometerplus.fbreader.Paths;
 import org.geometerplus.fbreader.book.Book;
 import org.geometerplus.fbreader.book.BookUtil;
 import org.geometerplus.fbreader.bookmodel.BookModel;
-import org.geometerplus.fbreader.bookmodel.BookReadingException;
 
-public class ExternalFormatPlugin extends FormatPlugin {
-	private FormatPlugin myInfoReader;
-
+public abstract class ExternalFormatPlugin extends FormatPlugin {
 	public ExternalFormatPlugin(String fileType) {
 		super(fileType);
 	}
 
-	public ExternalFormatPlugin(String fileType, FormatPlugin ir) {
-		super(fileType);
-		myInfoReader = ir;
-	}
+	public abstract String getPackage();
 
-	public String getPackage() {
-		return Formats.filetypeOption(supportedFileType()).getValue();
-	}
-
-	public ZLFile prepareFile(ZLFile f) {
-		if (f.getPath().contains(":")) {
-			try {
-				String filepath = f.getPath();
-				int p1 = filepath.lastIndexOf(":");
-				String filename = filepath.substring(p1 + 1);
-				final File dirFile = new File(Paths.tempDirectory());
-				dirFile.mkdirs();
-				String path = Paths.tempDirectory() + "/" + filename;
-				OutputStream out = new FileOutputStream(path);
-
-				int read = 0;
-				byte[] bytes = new byte[1024];
-				InputStream inp = f.getInputStream();
-
-				while ((read = inp.read(bytes)) > 0) {
-					out.write(bytes, 0, read);
-				}
-
-				out.flush();
-				out.close();
-				f = new ZLPhysicalFile(new File(path));
-			} catch (IOException e) {
-				f = null;
-			}
-		}
-		return f;
+	public boolean isYotaSupported() {
+		return false;
 	}
 
 	@Override
 	public Type type() {
-		return Type.EXTERNAL_PROGRAM;
+		return Type.EXTERNAL;
 	}
 
 	@Override
-	public void readMetainfo(Book book) throws BookReadingException {
-		if (myInfoReader != null) {
-			myInfoReader.readMetainfo(book);
-		}
-	}
-
-	@Override
-	public void readModel(BookModel model) throws BookReadingException {
+	public void readModel(BookModel model) {
 		// TODO: throw an "unsupported operation" exception
 	}
 
 	@Override
-	public ZLImage readCover(ZLFile file) {
-		if (myInfoReader != null) {
-			return myInfoReader.readCover(file);
-		}
-		return null;
+	public PluginImage readCover(ZLFile file) {
+		return new PluginImage(file, getPackage());
 	}
 
 	@Override
-	public String readAnnotation(ZLFile file) {
-		if (myInfoReader != null) {
-			return myInfoReader.readAnnotation(file);
-		}
-		return null;
-	}
-
-	@Override
-	public EncodingCollection supportedEncodings() {
+	public AutoEncodingCollection supportedEncodings() {
 		return new AutoEncodingCollection();
 	}
 
@@ -121,11 +64,12 @@ public class ExternalFormatPlugin extends FormatPlugin {
 	}
 
 	@Override
-	public void readUids(Book book) throws BookReadingException {
-		if (myInfoReader != null) {
-			myInfoReader.readUids(book);
-			return;
-		}
+	public String readAnnotation(ZLFile file) {
+		return null;
+	}
+
+	@Override
+	public void readUids(Book book) {
 		if (book.uids().isEmpty()) {
 			book.addUid(BookUtil.createUid(book.File, "SHA-256"));
 		}
