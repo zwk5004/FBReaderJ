@@ -19,13 +19,24 @@
 
 package org.geometerplus.fbreader.formats.external;
 
+import java.io.IOException;
+import java.util.Collections;
+
+import org.pdfparse.exception.EParseError;
+import org.pdfparse.model.PDFDocInfo;
+import org.pdfparse.model.PDFDocument;
+
+import org.geometerplus.fbreader.book.Author;
 import org.geometerplus.fbreader.book.Book;
+import org.geometerplus.fbreader.bookmodel.BookReadingException;
 
-public class DjvuExternalFormatPlugin extends ExternalFormatPlugin {
-	private final String PACKAGE = "org.geometerplus.fbreader.plugin.djvu";
+import android.util.Log;
 
-	public DjvuExternalFormatPlugin() {
-		super("DjVu");
+public class PDFPlugin extends ExternalFormatPlugin {
+	private final String PACKAGE = "org.geometerplus.fbreader.plugin.pdf";
+
+	public PDFPlugin() {
+		super("PDF");
 	}
 
 	@Override
@@ -34,7 +45,20 @@ public class DjvuExternalFormatPlugin extends ExternalFormatPlugin {
 	}
 
 	@Override
+	public boolean isYotaSupported() {
+		return true;
+	}
+
+	@Override
 	public void readMetainfo(Book book) {
-		// TODO: implement
+		try {
+			final PDFDocument doc = new PDFDocument(book.File.getPath());
+			final PDFDocInfo info = doc.getDocumentInfo();
+			book.setTitle(info.getTitle());
+			Log.d("PDFPARSE", info.getTitle());
+			book.setAuthors(Collections.singletonList(new Author(info.getAuthor(), "")));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }
