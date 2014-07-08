@@ -38,7 +38,6 @@ import org.geometerplus.fbreader.bookmodel.*;
 import org.geometerplus.fbreader.fbreader.options.*;
 import org.geometerplus.fbreader.formats.*;
 import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
-import org.geometerplus.fbreader.formats.external.ExternalProgramFormatPlugin;
 
 public final class FBReaderApp extends ZLApplication {
 	public interface ExternalFileOpener {
@@ -169,21 +168,6 @@ public final class FBReaderApp extends ZLApplication {
 		Collection.saveBook(bookToOpen);
 		final FormatPlugin p = PluginCollection.Instance().getPlugin(bookToOpen.File);
 		if (p == null) return;
-		if (p.type() == FormatPlugin.Type.EXTERNAL_PROGRAM) {
-			final SynchronousExecutor executor = createExecutor("extract");
-			executor.execute(new Runnable() {
-				public void run() {
-					final ZLFile f = ((ExternalProgramFormatPlugin)p).prepareFile(bookToOpen.File);
-					if (myExternalFileOpener.openFile(f, Formats.filetypeOption(FileTypeCollection.Instance.typeForFile(bookToOpen.File).Id).getValue())) {
-						Collection.addBookToRecentList(bookToOpen);
-						closeWindow();
-					} else {
-						openBook(null, null, null);
-					}
-				}
-			}, postAction);
-			return;
-		}
 		if (p.type() == FormatPlugin.Type.EXTERNAL) {
 			if (!((ExternalFormatPlugin)p).isYotaSupported()) {
 				runAction(ActionCode.YOTA_SWITCH_TO_FRONT_SCREEN);
