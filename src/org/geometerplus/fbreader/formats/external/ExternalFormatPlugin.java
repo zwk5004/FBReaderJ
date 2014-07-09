@@ -31,8 +31,6 @@ public abstract class ExternalFormatPlugin extends FormatPlugin {
 		super(fileType);
 	}
 
-	public abstract String getPackage();
-
 	public boolean isYotaSupported() {
 		return false;
 	}
@@ -41,6 +39,8 @@ public abstract class ExternalFormatPlugin extends FormatPlugin {
 	public Type type() {
 		return Type.EXTERNAL;
 	}
+
+	public abstract String packageName();
 
 	@Override
 	public PluginImage readCover(ZLFile file) {
