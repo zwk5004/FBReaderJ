@@ -34,7 +34,7 @@ import org.geometerplus.fbreader.Paths;
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
 import org.geometerplus.android.fbreader.api.TextPosition;
-import org.geometerplus.android.fbreader.plugin.PluginUtil;
+import org.geometerplus.android.fbreader.formatPlugin.PluginUtil;
 
 public class YotaPluginShadow implements ServiceConnection {
 	private Context myContext;

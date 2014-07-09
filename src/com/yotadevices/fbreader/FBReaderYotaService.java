@@ -50,7 +50,7 @@ import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
 import org.geometerplus.android.fbreader.FBReader;
 import org.geometerplus.android.fbreader.api.FBReaderIntents;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
-import org.geometerplus.android.fbreader.plugin.metainfoservice.MetaInfoReader;
+import org.geometerplus.android.fbreader.formatPlugin.metainfoservice.MetaInfoReader;
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.fbreader.ActionCode;
 import org.geometerplus.fbreader.fbreader.FBReaderApp;
@@ -61,7 +61,7 @@ import org.geometerplus.fbreader.formats.*;
 import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
 
 import org.geometerplus.android.fbreader.api.FBReaderIntents;
-import org.geometerplus.android.fbreader.plugin.PluginUtil;
+import org.geometerplus.android.fbreader.formatPlugin.PluginUtil;
 
 /**
  * @author ASazonov
@@ -86,7 +86,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 				return;
 			}
 			//			Uri uri = Uri.parse("file://" + f.getPath());
-			final Intent launchIntent = PluginUtil.createIntent(plugin, "android.fbreader.action.VIEW_PLUGIN");
+			final Intent launchIntent = PluginUtil.createIntent(plugin, PluginUtil.ACTION_VIEW);
 			//			launchIntent.setData(uri);
 			FBReaderIntents.putBookExtra(launchIntent, book);
 			FBReaderIntents.putBookmarkExtra(launchIntent, bookmark);
