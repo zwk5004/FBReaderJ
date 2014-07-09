@@ -32,16 +32,18 @@ import org.geometerplus.zlibrary.text.view.ZLTextFixedPosition;
 import org.geometerplus.zlibrary.text.view.ZLTextPosition;
 import org.geometerplus.fbreader.Paths;
 import org.geometerplus.fbreader.book.*;
+import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
 import org.geometerplus.android.fbreader.api.TextPosition;
+import org.geometerplus.android.fbreader.plugin.PluginUtil;
 
 public class YotaPluginShadow implements ServiceConnection {
 	private Context myContext;
 	private volatile YotaBitmapProvider myInterface;
 	private final List<Runnable> myOnBindActions = new LinkedList<Runnable>();
-	private final String myPackage;
+	private final ExternalFormatPlugin myPlugin;
 	
-	public YotaPluginShadow(String pack) {
-		myPackage = pack;
+	public YotaPluginShadow(ExternalFormatPlugin plugin) {
+		myPlugin = plugin;
 	}
 
 	private final BroadcastReceiver myReceiver = new BroadcastReceiver() {
@@ -58,8 +60,7 @@ public class YotaPluginShadow implements ServiceConnection {
 			if (onBindAction != null) {
 				myOnBindActions.add(onBindAction);
 			}
-			Intent i = new Intent("com.yotadevices.fbreader.YotaBitmapProvider");
-			i.setPackage(myPackage);
+			final Intent i = PluginUtil.createIntent(myPlugin, "com.yotadevices.fbreader.YotaBitmapProvider");
 			context.bindService(i, this, Context.BIND_AUTO_CREATE);
 			myContext = context;
 		}

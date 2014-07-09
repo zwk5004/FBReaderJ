@@ -58,8 +58,10 @@ import org.geometerplus.fbreader.fbreader.options.ViewOptions;
 import org.geometerplus.fbreader.fbreader.options.FooterOptions;
 import org.geometerplus.fbreader.fbreader.options.MiscOptions;
 import org.geometerplus.fbreader.formats.*;
+import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
 
 import org.geometerplus.android.fbreader.api.FBReaderIntents;
+import org.geometerplus.android.fbreader.plugin.PluginUtil;
 
 /**
  * @author ASazonov
@@ -77,20 +79,19 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	public static final String STOP_FOREGROUND = "stopForeground";
 
 	private class PluginFileOpener implements FBReaderApp.PluginFileOpener {
-		public void openFile(String appData, Book book, Bookmark bookmark) {
+		public void openFile(ExternalFormatPlugin plugin, Book book, Bookmark bookmark) {
 			ZLFile f = book.File;
 			if (f == null) {
 				//				showErrorDialog("unzipFailed");//TODO
 				return;
 			}
 			//			Uri uri = Uri.parse("file://" + f.getPath());
-			final Intent launchIntent = new Intent("android.fbreader.action.VIEW_PLUGIN");
-			launchIntent.setPackage(appData);
+			final Intent launchIntent = PluginUtil.createIntent(plugin, "android.fbreader.action.VIEW_PLUGIN");
 			//			launchIntent.setData(uri);
 			FBReaderIntents.putBookExtra(launchIntent, book);
 			FBReaderIntents.putBookmarkExtra(launchIntent, bookmark);
 			try {
-				final YotaPluginShadow s = myShadows.get(appData);
+				final YotaPluginShadow s = myShadows.get(plugin);
 				s.bindToService(FBReaderYotaService.this, new Runnable() {
 					@Override
 					public void run() {
@@ -106,8 +107,8 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 
 	}
 
-	private HashMap<String, YotaPluginShadow> myShadows = new HashMap<String,  YotaPluginShadow>();
-
+	private HashMap<ExternalFormatPlugin,YotaPluginShadow> myShadows =
+		new HashMap<ExternalFormatPlugin,YotaPluginShadow>();
 
 	static ZLAndroidWidget Widget;
 	private Canvas myCanvas;
@@ -144,9 +145,9 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	@Override
 	public void onBSCreate() {
 		super.onBSCreate();
-		for (final String pack : PluginCollection.Instance().getPluginPackages()) {
-			YotaPluginShadow s = new YotaPluginShadow(pack);
-			myShadows.put(pack, s);
+		for (final ExternalFormatPlugin plugin : PluginCollection.Instance().getExternalPlugins()) {
+			final YotaPluginShadow s = new YotaPluginShadow(plugin);
+			myShadows.put(plugin, s);
 			s.bindToService(this, null);//FIXME: remove this line?
 		}
 		myFBReaderApp = (FBReaderApp)FBReaderApp.Instance();
@@ -179,10 +180,8 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	@Override
 	public void onBSDestroy() {
 		Widget = null;
-		for (String pack : myShadows.keySet()) {
-			if (myShadows.get(pack) != null) {
-				myShadows.get(pack).unbind();
-			}
+		for (YotaPluginShadow shadow : myShadows.values()) {
+			shadow.unbind();
 		}
 		myShadows.clear();
 		super.onBSDestroy();
@@ -226,14 +225,12 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 			}
 		}
 
-		private String currentPluginPackage() {
+		private ExternalFormatPlugin currentPlugin() {
 			final FormatPlugin p = PluginCollection.Instance().getPlugin(myFBReaderApp.Model.Book.File);
 			if (p.type() == FormatPlugin.Type.EXTERNAL) {
-				ExternalFormatPlugin pp = ((ExternalFormatPlugin)p);
-				if (pp.isYotaSupported()) {
-					if (myShadows.containsKey(pp.getPackage())) {
-						return pp.getPackage();
-					}
+				final ExternalFormatPlugin pp = ((ExternalFormatPlugin)p);
+				if (pp.isYotaSupported() && myShadows.containsKey(pp)) {
+					return pp;
 				}
 			}
 			return null;
@@ -242,9 +239,9 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		@Override
 		protected void onDraw(final Canvas canvas) {
 			if (myBackScreenIsActive) {
-				final String pack = currentPluginPackage();
-				if (pack != null) {
-					final YotaPluginShadow s = myShadows.get(pack);
+				final ExternalFormatPlugin plugin = currentPlugin();
+				if (plugin != null) {
+					final YotaPluginShadow s = myShadows.get(plugin);
 					s.bindToService(FBReaderYotaService.this, new Runnable() {
 						@Override
 						public void run() {
@@ -314,9 +311,9 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 
 		@Override
 		public void turnPageStatic(final boolean next) {
-			String pack = currentPluginPackage();
-			if (pack != null) {
-					final YotaPluginShadow s = myShadows.get(pack);
+			final ExternalFormatPlugin plugin = currentPlugin();
+			if (plugin != null) {
+					final YotaPluginShadow s = myShadows.get(plugin);
 					s.bindToService(FBReaderYotaService.this, new Runnable() {
 						@Override
 						public void run() {
