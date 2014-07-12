@@ -168,13 +168,18 @@ public class BookInfoActivity extends Activity implements MenuItem.OnMenuItemCli
 			if (!loadableImage.isSynchronized()) {
 				loadableImage.synchronizeAction(new Runnable() {
 					public void run() {
-						setCover(coverView, image);
+						runOnUiThread(new Runnable() {
+							public void run() {
+								setCover(coverView, image);
+							}
+						});
 					}
 				}).run();
+				return;
 			}
-		} else {
-			setCover(coverView, image);
 		}
+
+		setCover(coverView, image);
 	}
 
 	private void setCover(ImageView coverView, ZLImage image) {
