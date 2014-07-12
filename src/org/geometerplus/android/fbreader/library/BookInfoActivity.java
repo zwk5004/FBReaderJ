@@ -50,7 +50,6 @@ import org.geometerplus.fbreader.network.HtmlUtil;
 import org.geometerplus.android.fbreader.*;
 import org.geometerplus.android.fbreader.api.FBReaderIntents;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
-import org.geometerplus.android.fbreader.formatPlugin.PluginConnectionPool;
 import org.geometerplus.android.fbreader.preferences.EditBookInfoActivity;
 
 public class BookInfoActivity extends Activity implements MenuItem.OnMenuItemClickListener, IBookCollection.Listener {
@@ -63,7 +62,6 @@ public class BookInfoActivity extends Activity implements MenuItem.OnMenuItemCli
 	private boolean myDontReloadBook;
 
 	private final AndroidImageSynchronizer myImageSynchronizer = new AndroidImageSynchronizer(this);
-	private final PluginConnectionPool myPool = new PluginConnectionPool(this);
 
 	private final BookCollectionShadow myCollection = new BookCollectionShadow();
 
@@ -85,7 +83,7 @@ public class BookInfoActivity extends Activity implements MenuItem.OnMenuItemCli
 		setContentView(R.layout.book_info);
 
 		if (MetaInfoUtil.PMIReader == null) {
-			MetaInfoUtil.PMIReader = myPool.createMetainfoReader();
+			MetaInfoUtil.PMIReader = myImageSynchronizer.createMetainfoReader();
 		}
 	}
 
@@ -123,8 +121,6 @@ public class BookInfoActivity extends Activity implements MenuItem.OnMenuItemCli
 		myCollection.removeListener(this);
 		myCollection.unbind();
 		myImageSynchronizer.clear();
-
-		myPool.clear();
 
 		super.onDestroy();
 	}
