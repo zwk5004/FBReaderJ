@@ -126,7 +126,8 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 							@Override
 							public void run() {
 								showErrorDialog("noPlugin", plugin);
-							}});
+							}
+						});
 					}
 				}
 			});
