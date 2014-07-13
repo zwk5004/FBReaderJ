@@ -83,8 +83,6 @@ public class BookInfoActivity extends Activity implements MenuItem.OnMenuItemCli
 			bar.setDisplayShowTitleEnabled(false);
 		}
 		setContentView(R.layout.book_info);
-
-		myImageSynchronizer.initialize();
 	}
 
 	@Override
