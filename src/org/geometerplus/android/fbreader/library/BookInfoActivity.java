@@ -82,9 +82,7 @@ public class BookInfoActivity extends Activity implements MenuItem.OnMenuItemCli
 		}
 		setContentView(R.layout.book_info);
 
-		if (MetaInfoUtil.PMIReader == null) {
-			MetaInfoUtil.PMIReader = myImageSynchronizer.createMetainfoReader();
-		}
+		myImageSynchronizer.initialize();
 	}
 
 	@Override
