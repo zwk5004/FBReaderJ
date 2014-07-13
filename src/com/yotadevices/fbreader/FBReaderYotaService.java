@@ -41,7 +41,8 @@ import org.geometerplus.zlibrary.core.view.ZLViewWidget;
 import org.geometerplus.zlibrary.text.view.style.ZLTextStyleCollection;
 import org.geometerplus.zlibrary.ui.android.R;
 import org.geometerplus.zlibrary.ui.android.error.ErrorKeys;
-import org.geometerplus.zlibrary.ui.android.image.*;
+import org.geometerplus.zlibrary.ui.android.image.ZLAndroidImageData;
+import org.geometerplus.zlibrary.ui.android.image.ZLAndroidImageManager;
 import org.geometerplus.zlibrary.ui.android.library.UncaughtExceptionHandler;
 import org.geometerplus.zlibrary.ui.android.library.ZLAndroidLibrary;
 import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
@@ -60,7 +61,11 @@ import org.geometerplus.fbreader.formats.*;
 import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
 
 import org.geometerplus.android.fbreader.api.FBReaderIntents;
+<<<<<<< HEAD
 import org.geometerplus.android.fbreader.formatPlugin.PluginUtil;
+=======
+import org.geometerplus.android.fbreader.util.AndroidImageSynchronizer;
+>>>>>>> yota2
 
 /**
  * @author ASazonov
