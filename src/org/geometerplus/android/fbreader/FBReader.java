@@ -1182,7 +1182,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 	@Override
 	public void close() {
-		((ZLAndroidLibrary)ZLAndroidLibrary.Instance()).finish();
+		finish();
 	}
 
 	private WidgetShadow myYotaWidget = new WidgetShadow(this);
