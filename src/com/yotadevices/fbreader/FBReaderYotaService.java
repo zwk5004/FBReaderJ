@@ -30,14 +30,13 @@ import com.yotadevices.sdk.utils.EinkUtils;
 import org.geometerplus.zlibrary.core.application.ZLApplicationWindow;
 import org.geometerplus.zlibrary.core.application.ZLKeyBindings;
 import org.geometerplus.zlibrary.core.image.ZLImage;
-import org.geometerplus.zlibrary.core.image.ZLLoadableImage;
+import org.geometerplus.zlibrary.core.image.ZLImageProxy;
 import org.geometerplus.zlibrary.core.options.Config;
 import org.geometerplus.zlibrary.core.util.MiscUtil;
 import org.geometerplus.zlibrary.core.view.ZLViewWidget;
 import org.geometerplus.zlibrary.ui.android.R;
 import org.geometerplus.zlibrary.ui.android.error.ErrorKeys;
-import org.geometerplus.zlibrary.ui.android.image.ZLAndroidImageData;
-import org.geometerplus.zlibrary.ui.android.image.ZLAndroidImageManager;
+import org.geometerplus.zlibrary.ui.android.image.*;
 import org.geometerplus.zlibrary.ui.android.library.UncaughtExceptionHandler;
 import org.geometerplus.zlibrary.ui.android.library.ZLAndroidLibrary;
 import org.geometerplus.zlibrary.ui.android.view.AndroidFontUtil;
@@ -58,6 +57,8 @@ import org.geometerplus.android.fbreader.api.FBReaderIntents;
 public class FBReaderYotaService extends BSActivity implements ZLApplicationWindow {
 	public static final String KEY_BACK_SCREEN_IS_ACTIVE =
 			"com.yotadevices.fbreader.backScreenIsActive";
+
+	private final AndroidImageSynchronizer myImageSynchronizer = new AndroidImageSynchronizer(this);
 
 	static ZLAndroidWidget Widget;
 	private Canvas myCanvas;
@@ -127,6 +128,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	@Override
 	public void onBSDestroy() {
 		Widget = null;
+		myImageSynchronizer.clear();
 		super.onBSDestroy();
 	}
 	
@@ -245,10 +247,10 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 				final ZLImage image = BookUtil.getCover(currentBook);
 
 				if (image != null) {
-					if (image instanceof ZLLoadableImage) {
-						final ZLLoadableImage loadableImage = (ZLLoadableImage)image;
-						if (!loadableImage.isSynchronized()) {
-							loadableImage.synchronize();
+					if (image instanceof ZLImageProxy) {
+						final ZLImageProxy proxy = (ZLImageProxy)image;
+						if (!proxy.isSynchronized()) {
+							proxy.synchronize(myImageSynchronizer);
 						}
 					}
 					final ZLAndroidImageData data =
