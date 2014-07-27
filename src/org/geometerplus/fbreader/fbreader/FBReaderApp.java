@@ -36,22 +36,19 @@ import org.geometerplus.zlibrary.text.view.*;
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.bookmodel.*;
 import org.geometerplus.fbreader.fbreader.options.*;
-import org.geometerplus.fbreader.formats.*;
+import org.geometerplus.fbreader.formats.FormatPlugin;
+import org.geometerplus.fbreader.formats.PluginCollection;
 import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
 
 public final class FBReaderApp extends ZLApplication {
-	public interface PluginFileOpener {
+	public interface ExternalFileOpener {
 		public void openFile(ExternalFormatPlugin plugin, Book book, Bookmark bookmark);
 	}
 
-	protected PluginFileOpener myPluginFileOpener;
+	private ExternalFileOpener myExternalFileOpener;
 
-	public void setPluginFileOpener(PluginFileOpener o) {
-		myPluginFileOpener = o;
-	}
-
-	public PluginFileOpener getPluginFileOpener() {
-		return myPluginFileOpener;
+	public void setExternalFileOpener(ExternalFileOpener o) {
+		myExternalFileOpener = o;
 	}
 
 	public final MiscOptions MiscOptions = new MiscOptions();
@@ -173,7 +170,7 @@ public final class FBReaderApp extends ZLApplication {
 			executor.execute(new Runnable() {
 				public void run() {
 					final ExternalFormatPlugin pfp = (ExternalFormatPlugin)p;
-					myPluginFileOpener.openFile(pfp, bookToOpen, bm);
+					myExternalFileOpener.openFile(pfp, bookToOpen, bm);
 				}
 			}, postAction);
 			return;
