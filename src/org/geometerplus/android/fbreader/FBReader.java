@@ -115,7 +115,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	volatile boolean IsPaused = false;
 	volatile Runnable OnResumeAction = null;
 
-	private boolean myNeedToSkipPlugin = false;
 	private Intent myCancelIntent = null;
 	private Intent myIntentToOpen = null;
 
@@ -286,7 +285,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		myFBReaderApp.setExternalFileOpener(new ExternalFileOpener(this));
 
 		myIntentToOpen = getIntent();
-		myNeedToSkipPlugin = true;
 
 		final ActionBar bar = getActionBar();
 		bar.setDisplayOptions(
@@ -365,8 +363,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 				myCancelIntent = getIntent();
 			} else if ("android.fbreader.action.PLUGIN_CRASH".equals(getIntent().getAction())) {
 				Log.d("fbj", "crash in oncreate");
-				myNeedToSkipPlugin = true;
-				myFBReaderApp.Model = null;
+				myFBReaderApp.ExternalBook = null;
 				getCollection().bindToService(this, new Runnable() {
 					public void run() {
 						myFBReaderApp.openBook(myFBReaderApp.Collection.getRecentBook(0), null, null);
@@ -381,10 +378,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		final String action = intent.getAction();
 		final Uri data = intent.getData();
 
-		if (Intent.ACTION_VIEW.equals(action)) {
-			myNeedToSkipPlugin = true;
-		}
-
 		if ((intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0) {
 			super.onNewIntent(intent);
 		} else if (Intent.ACTION_VIEW.equals(action)
@@ -392,7 +385,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			myFBReaderApp.runAction(data.getEncodedSchemeSpecificPart(), data.getFragment());
 		} else if (Intent.ACTION_VIEW.equals(action) || FBReaderIntents.Action.VIEW.equals(action)) {
 			myIntentToOpen = intent;
-			myNeedToSkipPlugin = true;
 		} else if (FBReaderIntents.Action.PLUGIN.equals(action)) {
 			new RunPluginAction(this, myFBReaderApp, data).run();
 		} else if (Intent.ACTION_SEARCH.equals(action)) {
@@ -427,8 +419,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		} else if ("android.fbreader.action.PLUGIN_CRASH".equals(intent.getAction())) {
 			Log.d("fbj", "crash");
 			final Book book = FBReaderIntents.getBookExtra(intent);
-			myNeedToSkipPlugin = true;
-			myFBReaderApp.Model = null;
+			myFBReaderApp.ExternalBook = null;
 			getCollection().bindToService(this, new Runnable() {
 				public void run() {
 					Book b = myFBReaderApp.Collection.getRecentBook(0);
@@ -442,7 +433,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			super.onNewIntent(intent);
 			if (Intent.ACTION_VIEW.equals(action) || FBReaderIntents.Action.VIEW.equals(action)) {
 				myIntentToOpen = intent;
-				myNeedToSkipPlugin = true;
 				if (intent.getBooleanExtra("KILL_PLUGIN", false)) {
 					Log.d("fbreader", "killing plugin");
 					if (myFBReaderApp.Model == null && myFBReaderApp.ExternalBook != null) {
@@ -558,25 +548,24 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	}
 
 	private void checkForPlugin() {
-		if (myFBReaderApp.Model == null && myFBReaderApp.ExternalBook != null) {
-			final ExternalFormatPlugin plugin =
-				(ExternalFormatPlugin)myFBReaderApp.ExternalBook.getPluginOrNull();
-			Log.d("fbj", "onresume: current book is: " + myFBReaderApp.ExternalBook.File.getPath());
-			if (myFBReaderApp.ViewOptions.YotaDrawOnBackScreen.getValue() && plugin.isYotaSupported()) {
-				myNeedToSkipPlugin = true;
-			}
-			if (!myNeedToSkipPlugin) {
-				Log.d("fbj", "opening book from onresume");
-				getCollection().bindToService(this, new Runnable() {
-					public void run() {
-						myFBReaderApp.openBook(myFBReaderApp.ExternalBook, null, null);
-					}
-				});
-			} else {
-				Log.d("fbj", "skipping");
-			}
+		if (myFBReaderApp.Model != null || myFBReaderApp.ExternalBook == null) {
+			return;
 		}
-		myNeedToSkipPlugin = false;
+		if (myIntentToOpen != null) {
+			return;
+		}
+		final ExternalFormatPlugin plugin =
+			(ExternalFormatPlugin)myFBReaderApp.ExternalBook.getPluginOrNull();
+		Log.d("fbj", "onresume: " + myFBReaderApp.ExternalBook.File);
+		if (myFBReaderApp.ViewOptions.YotaDrawOnBackScreen.getValue() && plugin.isYotaSupported()) {
+			return;
+		}
+		Log.d("fbj", "opening book from onresume");
+		getCollection().bindToService(this, new Runnable() {
+			public void run() {
+				myFBReaderApp.openBook(myFBReaderApp.ExternalBook, null, null);
+			}
+		});
 	}
 	
 	@Override
@@ -773,9 +762,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 				}
 				break;
 			case REQUEST_CANCEL_MENU:
-				if (resultCode != RESULT_CANCELED && resultCode != -1) {
-					myNeedToSkipPlugin = true;
-				}
 				runCancelAction(data);
 				break;
 		}
