@@ -115,6 +115,8 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	boolean IsPaused = false;
 	Runnable OnResumeAction = null;
 
+	private boolean myNeedToSkipPlugin = false;
+	private Intent myCancelIntent = null;
 	private Intent myIntentToOpen = null;
 
 	private static final String PLUGIN_ACTION_PREFIX = "___";
@@ -360,7 +362,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 		if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
 			if ("android.fbreader.action.CLOSE".equals(getIntent().getAction()) ) {
-				myCancelCalled = true;
 				myCancelIntent = getIntent();
 			} else if ("android.fbreader.action.PLUGIN_CRASH".equals(getIntent().getAction())) {
 				Log.d("fbj", "crash in oncreate");
@@ -374,11 +375,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			}
 		}
 	}
-
-	private boolean myCancelCalled = false;
-	private boolean myNeedToSkipPlugin = false;
-
-	private Intent myCancelIntent = null;
 
 	@Override
 	protected void onNewIntent(final Intent intent) {
@@ -425,7 +421,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			};
 			UIUtil.wait("search", runnable, this);
 		} else if ("android.fbreader.action.CLOSE".equals(intent.getAction())) {
-			myCancelCalled = true;
 			myCancelIntent = intent;
 		} else if ("android.fbreader.action.SWITCH_YOTA_SCREEN".equals(intent.getAction())) {
 			new YotaSwitchScreenAction(FBReader.this, myFBReaderApp, true).run();
@@ -629,19 +624,14 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 		SetScreenOrientationAction.setOrientation(this, ZLibrary.Instance().getOrientationOption().getValue());
 		Log.d("fbreader", "onresume");
-		if (myCancelCalled) {
-			myCancelCalled = false;
-			if (myCancelIntent != null) {
-				final Intent ci = myCancelIntent;
-				myCancelIntent = null;
-				getCollection().bindToService(this, new Runnable() {
-					public void run() {
-						runCancelAction(ci);
-					}
-				});
-			} else {
-				finish();
-			}
+		if (myCancelIntent != null) {
+			final Intent intent = myCancelIntent;
+			myCancelIntent = null;
+			getCollection().bindToService(this, new Runnable() {
+				public void run() {
+					runCancelAction(intent);
+				}
+			});
 			return;
 		} else {
 			checkForPlugin();
