@@ -611,7 +611,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		if (myOpenBookIntent != null) {
 			final Intent intent = myOpenBookIntent;
 			myOpenBookIntent = null;
-			Log.d("fbj", "needtoopen");
 			getCollection().bindToService(this, new Runnable() {
 				public void run() {
 					refreshYotaScreen();
@@ -619,6 +618,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 				}
 			});
 		}
+
 		PopupPanel.restoreVisibilities(myFBReaderApp);
 
 		hideBars();
