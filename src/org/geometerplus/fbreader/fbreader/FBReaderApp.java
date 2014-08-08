@@ -152,10 +152,10 @@ public final class FBReaderApp extends ZLApplication {
 		final Book bookToOpen = tempBook;
 		bookToOpen.addLabel(Book.READ_LABEL);
 		Collection.saveBook(bookToOpen);
-		final FormatPlugin p = PluginCollection.Instance().getPlugin(bookToOpen.File);
-		if (p == null) return;
-		if (p.type() == FormatPlugin.Type.EXTERNAL) {
-			if (!((ExternalFormatPlugin)p).isYotaSupported()) {
+		final SynchronousExecutor executor = createExecutor("loadingBook");
+		final FormatPlugin plugin = bookToOpen.getPluginOrNull();
+		if (plugin instanceof ExternalFormatPlugin) {
+			if (!((ExternalFormatPlugin)plugin).isYotaSupported()) {
 				runAction(ActionCode.YOTA_SWITCH_TO_FRONT_SCREEN);
 			}
 			BookTextView.setModel(null);
@@ -177,22 +177,19 @@ public final class FBReaderApp extends ZLApplication {
 			Log.d("fjgh", "hgkgjfhjkdyk");
 			if (myExternalFileOpener != null && open) {
 				Log.d("fjgh", "hfhfdhjfgjghhjkdyk");
-				final SynchronousExecutor executor = createExecutor("loadingBook");
 				executor.execute(new Runnable() {
 					public void run() {
-						final ExternalFormatPlugin pfp = (ExternalFormatPlugin)p;
-						myExternalFileOpener.openFile(pfp, bookToOpen, bm);
+						myExternalFileOpener.openFile((ExternalFormatPlugin)plugin, bookToOpen, bm);
 					}
 				}, postAction);
 			}
-			return;
+		} else {
+			executor.execute(new Runnable() {
+				public void run() {
+					openBookInternal(bookToOpen, bookmark, false);
+				}
+			}, postAction);
 		}
-		final SynchronousExecutor executor = createExecutor("loadingBook");
-		executor.execute(new Runnable() {
-			public void run() {
-				openBookInternal(bookToOpen, bookmark, false);
-			}
-		}, postAction);
 	}
 
 	public void reloadBook() {
