@@ -560,11 +560,9 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		}
 		final ExternalFormatPlugin plugin =
 			(ExternalFormatPlugin)myFBReaderApp.ExternalBook.getPluginOrNull();
-		Log.d("fbj", "onresume: " + myFBReaderApp.ExternalBook.File);
 		if (myFBReaderApp.ViewOptions.YotaDrawOnBackScreen.getValue() && plugin.isYotaSupported()) {
 			return;
 		}
-		Log.d("fbj", "opening book from onresume");
 		getCollection().bindToService(this, new Runnable() {
 			public void run() {
 				myFBReaderApp.openBook(myFBReaderApp.ExternalBook, null, null);
@@ -617,7 +615,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		}
 
 		SetScreenOrientationAction.setOrientation(this, ZLibrary.Instance().getOrientationOption().getValue());
-		Log.d("fbreader", "onresume");
 		if (myCancelIntent != null) {
 			final Intent intent = myCancelIntent;
 			myCancelIntent = null;
