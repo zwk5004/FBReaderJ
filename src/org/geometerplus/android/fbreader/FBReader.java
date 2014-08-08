@@ -777,7 +777,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	}
 
 	private void addMenuItem(Menu menu, String actionId) {
-		addMenuItem(menu, actionId, null, null, myActionBarIsVisible);
+		addMenuItem(menu, actionId, null, null, false);
 	}
 
 	private void fillMenu(Menu menu, List<MenuNode> nodes) {
