@@ -61,11 +61,8 @@ import org.geometerplus.fbreader.formats.*;
 import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
 
 import org.geometerplus.android.fbreader.api.FBReaderIntents;
-<<<<<<< HEAD
 import org.geometerplus.android.fbreader.formatPlugin.PluginUtil;
-=======
 import org.geometerplus.android.fbreader.util.AndroidImageSynchronizer;
->>>>>>> yota2
 
 /**
  * @author ASazonov

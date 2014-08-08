@@ -57,7 +57,6 @@ import org.geometerplus.fbreader.bookmodel.BookModel;
 import org.geometerplus.fbreader.fbreader.*;
 import org.geometerplus.fbreader.fbreader.options.CancelMenuHelper;
 import org.geometerplus.fbreader.formats.FormatPlugin;
-import org.geometerplus.fbreader.formats.PluginCollection;
 import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
 import org.geometerplus.fbreader.tips.TipsManager;
 
@@ -459,9 +458,9 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 				myNeedToSkipPlugin = true;
 				if (intent.getBooleanExtra("KILL_PLUGIN", false)) {
 					Log.d("fbreader", "killing plugin");
-					if (myFBReaderApp.Model != null && myFBReaderApp.Model.Book != null) {
-						final FormatPlugin p = PluginCollection.Instance().getPlugin(myFBReaderApp.Model.Book.File);
-						if (p.type() == FormatPlugin.Type.EXTERNAL) {
+					if (myFBReaderApp.Model == null && myFBReaderApp.ExternalBook != null) {
+						final FormatPlugin p = myFBReaderApp.ExternalBook.getPluginOrNull();
+						if (p instanceof ExternalFormatPlugin) {
 							final Intent i = PluginUtil.createIntent((ExternalFormatPlugin)p, PluginUtil.ACTION_KILL);
 							try {
 								startActivity(i);
@@ -574,12 +573,12 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	}
 
 	private void checkForPlugin() {
-		if (myFBReaderApp.Model != null && myFBReaderApp.Model.Book != null) {
-			final FormatPlugin p = PluginCollection.Instance().getPlugin(myFBReaderApp.Model.Book.File);
+		if (myFBReaderApp.Model == null && myFBReaderApp.ExternalBook != null) {
+			final FormatPlugin p = myFBReaderApp.ExternalBook.getPluginOrNull();
 			Log.d("fbj", "onresume: current book is: " + myFBReaderApp.Model.Book.File.getPath());
-			if (p.type() == FormatPlugin.Type.EXTERNAL) {
+			if (p instanceof ExternalFormatPlugin) {
 				if (myFBReaderApp.ViewOptions.YotaDrawOnBackScreen.getValue() &&
-						((ExternalFormatPlugin) p).isYotaSupported()) {
+						((ExternalFormatPlugin)p).isYotaSupported()) {
 					myNeedToSkipPlugin = true;
 				}
 				if (!myNeedToSkipPlugin) {
