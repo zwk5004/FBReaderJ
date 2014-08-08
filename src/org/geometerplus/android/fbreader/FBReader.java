@@ -358,12 +358,15 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			}
 		});
 
-		if ((getIntent().getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
-			if ("android.fbreader.action.CLOSE".equals(getIntent().getAction()) ) {
-				myCancelIntent = getIntent();
-			} else if ("android.fbreader.action.PLUGIN_CRASH".equals(getIntent().getAction())) {
-				Log.d("fbj", "crash in oncreate");
+		final Intent intent = getIntent();
+		final String action = intent.getAction();
+		if ((intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) == 0) {
+			if (FBReaderIntents.Action.CLOSE.equals(action)) {
+				myCancelIntent = intent;
+				myOpenBookIntent = null;
+			} else if (FBReaderIntents.Action.PLUGIN_CRASH.equals(action)) {
 				myFBReaderApp.ExternalBook = null;
+				myOpenBookIntent = null;
 				getCollection().bindToService(this, new Runnable() {
 					public void run() {
 						myFBReaderApp.openBook(myFBReaderApp.Collection.getRecentBook(0), null, null);
@@ -412,11 +415,11 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 				}
 			};
 			UIUtil.wait("search", runnable, this);
-		} else if ("android.fbreader.action.CLOSE".equals(intent.getAction())) {
+		} else if (FBReaderIntents.Action.CLOSE.equals(intent.getAction())) {
 			myCancelIntent = intent;
 		} else if ("android.fbreader.action.SWITCH_YOTA_SCREEN".equals(intent.getAction())) {
 			new YotaSwitchScreenAction(FBReader.this, myFBReaderApp, true).run();
-		} else if ("android.fbreader.action.PLUGIN_CRASH".equals(intent.getAction())) {
+		} else if (FBReaderIntents.Action.PLUGIN_CRASH.equals(intent.getAction())) {
 			Log.d("fbj", "crash");
 			final Book book = FBReaderIntents.getBookExtra(intent);
 			myFBReaderApp.ExternalBook = null;
