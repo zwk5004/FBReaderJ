@@ -32,7 +32,6 @@ import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.bookmodel.*;
 import org.geometerplus.fbreader.fbreader.options.*;
 import org.geometerplus.fbreader.formats.FormatPlugin;
-import org.geometerplus.fbreader.formats.PluginCollection;
 import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
 
 import android.util.Log;
@@ -135,7 +134,7 @@ public final class FBReaderApp extends ZLApplication {
 
 	public void openBook(final Book book, final Bookmark bookmark, final Runnable postAction) {
 		if (Model != null) {
-			if (book == null || bookmark == null && book.File.getPath().equals(Model.Book.File.getPath())) {
+			if (book == null || bookmark == null && book.File.equals(Model.Book.File)) {
 				return;
 			}
 		}
@@ -158,31 +157,31 @@ public final class FBReaderApp extends ZLApplication {
 			if (!((ExternalFormatPlugin)plugin).isYotaSupported()) {
 				runAction(ActionCode.YOTA_SWITCH_TO_FRONT_SCREEN);
 			}
-			BookTextView.setModel(null);
-			FootnoteView.setModel(null);
-			clearTextCaches();
-			Model = null;
-			ExternalBook = bookToOpen;
-			final Bookmark bm;
-			if (bookmark != null) {
-				bm = bookmark;
-			} else {
-				ZLTextPosition pos = Collection.getStoredPosition(bookToOpen.getId());
-				if (pos == null) {
-					pos = new ZLTextFixedPosition(0, 0, 0);
-				}
-				bm = new Bookmark(bookToOpen, "", pos, pos, "", false);
-			}
-			boolean open = ViewOptions.YotaDrawOnBackScreen.getValue() ^ !myWindow.isYotaService();
-			Log.d("fjgh", "hgkgjfhjkdyk");
-			if (myExternalFileOpener != null && open) {
-				Log.d("fjgh", "hfhfdhjfgjghhjkdyk");
-				executor.execute(new Runnable() {
-					public void run() {
+			executor.execute(new Runnable() {
+				public void run() {
+					BookTextView.setModel(null);
+					FootnoteView.setModel(null);
+					clearTextCaches();
+					Model = null;
+					ExternalBook = bookToOpen;
+					final Bookmark bm;
+					if (bookmark != null) {
+						bm = bookmark;
+					} else {
+						ZLTextPosition pos = Collection.getStoredPosition(bookToOpen.getId());
+						if (pos == null) {
+							pos = new ZLTextFixedPosition(0, 0, 0);
+						}
+						bm = new Bookmark(bookToOpen, "", pos, pos, "", false);
+					}
+					boolean open = ViewOptions.YotaDrawOnBackScreen.getValue() ^ !myWindow.isYotaService();
+					Log.d("fjgh", "hgkgjfhjkdyk");
+					if (myExternalFileOpener != null && open) {
+						Log.d("fjgh", "hfhfdhjfgjghhjkdyk");
 						myExternalFileOpener.openFile((ExternalFormatPlugin)plugin, bookToOpen, bm);
 					}
-				}, postAction);
-			}
+				}
+			}, postAction);
 		} else {
 			executor.execute(new Runnable() {
 				public void run() {
