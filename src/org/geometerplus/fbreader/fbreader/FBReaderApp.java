@@ -157,22 +157,7 @@ public final class FBReaderApp extends ZLApplication {
 			}
 			executor.execute(new Runnable() {
 				public void run() {
-					BookTextView.setModel(null);
-					FootnoteView.setModel(null);
-					clearTextCaches();
-					Model = null;
-					ExternalBook = bookToOpen;
-					final Bookmark bm;
-					if (bookmark != null) {
-						bm = bookmark;
-					} else {
-						ZLTextPosition pos = Collection.getStoredPosition(bookToOpen.getId());
-						if (pos == null) {
-							pos = new ZLTextFixedPosition(0, 0, 0);
-						}
-						bm = new Bookmark(bookToOpen, "", pos, pos, "", false);
-					}
-					myExternalFileOpener.openFile((ExternalFormatPlugin)plugin, bookToOpen, bm);
+					openBookInternal(bookToOpen, bookmark, false);
 				}
 			}, postAction);
 		} else {
@@ -280,7 +265,7 @@ public final class FBReaderApp extends ZLApplication {
 	}
 
 	private synchronized void openBookInternal(Book book, Bookmark bookmark, boolean force) {
-		if (Model != null && book.File.getPath().equals(Model.Book.File.getPath())) {
+		if (Model != null && book.File.equals(Model.Book.File)) {
 			if (bookmark != null) {
 				gotoBookmark(bookmark, false);
 				return;
@@ -299,16 +284,33 @@ public final class FBReaderApp extends ZLApplication {
 		}
 
 		onViewChanged();
-
 		storePosition();
+
 		BookTextView.setModel(null);
 		FootnoteView.setModel(null);
 		clearTextCaches();
-
 		Model = null;
 		ExternalBook = null;
 		System.gc();
 		System.gc();
+
+		final FormatPlugin plugin = book.getPluginOrNull();
+		if (plugin instanceof ExternalFormatPlugin) {
+			ExternalBook = book;
+			final Bookmark bm;
+			if (bookmark != null) {
+				bm = bookmark;
+			} else {
+				ZLTextPosition pos = Collection.getStoredPosition(book.getId());
+				if (pos == null) {
+					pos = new ZLTextFixedPosition(0, 0, 0);
+				}
+				bm = new Bookmark(book, "", pos, pos, "", false);
+			}
+			myExternalFileOpener.openFile((ExternalFormatPlugin)plugin, book, bm);
+			return;
+		}
+
 		try {
 			Model = BookModel.createModel(book);
 			Collection.saveBook(book);
