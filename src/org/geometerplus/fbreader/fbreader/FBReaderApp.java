@@ -176,13 +176,13 @@ public final class FBReaderApp extends ZLApplication {
 			}
 			boolean open = ViewOptions.YotaDrawOnBackScreen.getValue() ^ !myWindow.isYotaService();
 			Log.d("fjgh", "hgkgjfhjkdyk");
-			if (myPluginFileOpener != null && open) {
+			if (myExternalFileOpener != null && open) {
 				Log.d("fjgh", "hfhfdhjfgjghhjkdyk");
 				final SynchronousExecutor executor = createExecutor("loadingBook");
 				executor.execute(new Runnable() {
 					public void run() {
 						final ExternalFormatPlugin pfp = (ExternalFormatPlugin)p;
-						myPluginFileOpener.openFile(pfp, bookToOpen, bm);
+						myExternalFileOpener.openFile(pfp, bookToOpen, bm);
 					}
 				}, postAction);
 			}

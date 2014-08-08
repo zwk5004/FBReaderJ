@@ -50,7 +50,6 @@ import org.geometerplus.zlibrary.ui.android.view.ZLAndroidWidget;
 import org.geometerplus.android.fbreader.FBReader;
 import org.geometerplus.android.fbreader.api.FBReaderIntents;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
-import org.geometerplus.android.fbreader.formatPlugin.metainfoservice.MetaInfoReader;
 import org.geometerplus.fbreader.book.*;
 import org.geometerplus.fbreader.fbreader.ActionCode;
 import org.geometerplus.fbreader.fbreader.FBReaderApp;
@@ -79,7 +78,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 	public static final String START_FOREGROUND = "startForeground";
 	public static final String STOP_FOREGROUND = "stopForeground";
 
-	private class PluginFileOpener implements FBReaderApp.PluginFileOpener {
+	private class ExternalFileOpener implements FBReaderApp.ExternalFileOpener {
 		public void openFile(ExternalFormatPlugin plugin, Book book, Bookmark bookmark) {
 			ZLFile f = book.File;
 			if (f == null) {
@@ -157,7 +156,7 @@ public class FBReaderYotaService extends BSActivity implements ZLApplicationWind
 		if (myFBReaderApp == null) {
 			myFBReaderApp = new FBReaderApp(new BookCollectionShadow());
 		}
-		myFBReaderApp.setPluginFileOpener(new PluginFileOpener());
+		myFBReaderApp.setExternalFileOpener(new ExternalFileOpener());
 		myFBReaderApp.setWindow(this);
 		myFBReaderApp.initWindow();
 		Config.Instance().runOnConnect(new Runnable() {

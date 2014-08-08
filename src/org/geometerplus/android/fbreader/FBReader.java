@@ -571,23 +571,21 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 	private void checkForPlugin() {
 		if (myFBReaderApp.Model == null && myFBReaderApp.ExternalBook != null) {
-			final FormatPlugin p = myFBReaderApp.ExternalBook.getPluginOrNull();
-			Log.d("fbj", "onresume: current book is: " + myFBReaderApp.Model.Book.File.getPath());
-			if (p instanceof ExternalFormatPlugin) {
-				if (myFBReaderApp.ViewOptions.YotaDrawOnBackScreen.getValue() &&
-						((ExternalFormatPlugin)p).isYotaSupported()) {
-					myNeedToSkipPlugin = true;
-				}
-				if (!myNeedToSkipPlugin) {
-					Log.d("fbj", "opening book from onresume");
-					getCollection().bindToService(this, new Runnable() {
-						public void run() {
-							myFBReaderApp.openBook(myFBReaderApp.Model.Book, null, null);
-						}
-					});
-				} else {
-					Log.d("fbj", "skipping");
-				}
+			final ExternalFormatPlugin plugin =
+				(ExternalFormatPlugin)myFBReaderApp.ExternalBook.getPluginOrNull();
+			Log.d("fbj", "onresume: current book is: " + myFBReaderApp.ExternalBook.File.getPath());
+			if (myFBReaderApp.ViewOptions.YotaDrawOnBackScreen.getValue() && plugin.isYotaSupported()) {
+				myNeedToSkipPlugin = true;
+			}
+			if (!myNeedToSkipPlugin) {
+				Log.d("fbj", "opening book from onresume");
+				getCollection().bindToService(this, new Runnable() {
+					public void run() {
+						myFBReaderApp.openBook(myFBReaderApp.ExternalBook, null, null);
+					}
+				});
+			} else {
+				Log.d("fbj", "skipping");
 			}
 		}
 		myNeedToSkipPlugin = false;
