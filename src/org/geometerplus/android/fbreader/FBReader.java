@@ -555,9 +555,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		if (myFBReaderApp.Model != null || myFBReaderApp.ExternalBook == null) {
 			return;
 		}
-		if (myOpenBookIntent != null) {
-			return;
-		}
 		final ExternalFormatPlugin plugin =
 			(ExternalFormatPlugin)myFBReaderApp.ExternalBook.getPluginOrNull();
 		if (myFBReaderApp.ViewOptions.YotaDrawOnBackScreen.getValue() && plugin.isYotaSupported()) {
@@ -624,11 +621,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 				}
 			});
 			return;
-		} else {
-			checkForPlugin();
-		}
-
-		if (myOpenBookIntent != null) {
+		} else if (myOpenBookIntent != null) {
 			final Intent intent = myOpenBookIntent;
 			myOpenBookIntent = null;
 			getCollection().bindToService(this, new Runnable() {
@@ -637,6 +630,8 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 					openBook(intent, null, true);
 				}
 			});
+		} else {
+			checkForPlugin();
 		}
 
 		PopupPanel.restoreVisibilities(myFBReaderApp);
