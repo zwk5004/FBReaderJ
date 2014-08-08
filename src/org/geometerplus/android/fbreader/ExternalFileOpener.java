@@ -24,7 +24,6 @@ import java.util.Date;
 
 import android.app.AlertDialog;
 import android.content.*;
-import android.net.Uri;
 
 import org.geometerplus.zlibrary.core.options.Config;
 import org.geometerplus.zlibrary.core.options.ZLStringOption;
@@ -45,6 +44,26 @@ class ExternalFileOpener implements FBReaderApp.ExternalFileOpener {
 
 	ExternalFileOpener(FBReader reader) {
 		myReader = reader;
+	}
+
+	public void openFile(final ExternalFormatPlugin plugin, final Book book, Bookmark bookmark) {
+		final Intent launchIntent = PluginUtil.createIntent(plugin, PluginUtil.ACTION_VIEW);
+		FBReaderIntents.putBookExtra(launchIntent, book);
+		FBReaderIntents.putBookmarkExtra(launchIntent, bookmark);
+		launchIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+		Config.Instance().runOnConnect(new Runnable() {
+			public void run() {
+				try {
+					String date = DateFormat.getDateTimeInstance().format(new Date());
+					new ZLStringOption("Security", "PluginCalled", "").setValue(plugin.packageName() + date);
+					launchIntent.putExtra("SECURITY_CODE", date);
+					myReader.startActivity(launchIntent);
+					myReader.overridePendingTransition(0, 0);
+				} catch (ActivityNotFoundException e) {
+					showErrorDialog(plugin, book);
+				}
+			}
+		});
 	}
 
 	private void showErrorDialog(final ExternalFormatPlugin plugin, final Book book) {
@@ -85,25 +104,5 @@ class ExternalFileOpener implements FBReaderApp.ExternalFileOpener {
 		} else {
 			myReader.OnResumeAction = showDialog;
 		}
-	}
-
-	public void openFile(final ExternalFormatPlugin plugin, final Book book, Bookmark bookmark) {
-		final Intent launchIntent = PluginUtil.createIntent(plugin, PluginUtil.ACTION_VIEW);
-		FBReaderIntents.putBookExtra(launchIntent, book);
-		FBReaderIntents.putBookmarkExtra(launchIntent, bookmark);
-		launchIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-		Config.Instance().runOnConnect(new Runnable() {
-			public void run() {
-				try {
-					String date = DateFormat.getDateTimeInstance().format(new Date());
-					new ZLStringOption("Security", "PluginCalled", "").setValue(plugin.packageName() + date);
-					launchIntent.putExtra("SECURITY_CODE", date);
-					myReader.startActivity(launchIntent);
-					myReader.overridePendingTransition(0, 0);
-				} catch (ActivityNotFoundException e) {
-					showErrorDialog(plugin, book);
-				}
-			}
-		});
 	}
 }
