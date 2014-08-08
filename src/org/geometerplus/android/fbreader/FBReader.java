@@ -115,7 +115,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	boolean IsPaused = false;
 	Runnable OnResumeAction = null;
 
-	private boolean myNeedToOpenFile = false;
 	private Intent myIntentToOpen = null;
 
 	private static final String PLUGIN_ACTION_PREFIX = "___";
@@ -286,7 +285,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 		myFBReaderApp.setExternalFileOpener(new ExternalFileOpener(this));
 
-		myNeedToOpenFile = true;
 		myIntentToOpen = getIntent();
 		myNeedToSkipPlugin = true;
 
@@ -399,7 +397,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 				&& data != null && "fbreader-action".equals(data.getScheme())) {
 			myFBReaderApp.runAction(data.getEncodedSchemeSpecificPart(), data.getFragment());
 		} else if (Intent.ACTION_VIEW.equals(action) || FBReaderIntents.Action.VIEW.equals(action)) {
-			myNeedToOpenFile = true;
 			myIntentToOpen = intent;
 			myNeedToSkipPlugin = true;
 		} else if (FBReaderIntents.Action.PLUGIN.equals(action)) {
@@ -451,7 +448,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		} else {
 			super.onNewIntent(intent);
 			if (Intent.ACTION_VIEW.equals(action) || FBReaderIntents.Action.VIEW.equals(action)) {
-				myNeedToOpenFile = true;
 				myIntentToOpen = intent;
 				myNeedToSkipPlugin = true;
 				if (intent.getBooleanExtra("KILL_PLUGIN", false)) {
@@ -653,16 +649,16 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			checkForPlugin();
 		}
 
-		if (myNeedToOpenFile) {
+		if (myIntentToOpen != null) {
+			final Intent intent = myIntentToOpen;
+			myIntentToOpen = null;
 			Log.d("fbj", "needtoopen");
 			getCollection().bindToService(this, new Runnable() {
 				public void run() {
 					refreshYotaScreen();
-					openBook(myIntentToOpen, null, true);
-					myIntentToOpen = null;
+					openBook(intent, null, true);
 				}
 			});
-			myNeedToOpenFile = false;
 		}
 		PopupPanel.restoreVisibilities(myFBReaderApp);
 
