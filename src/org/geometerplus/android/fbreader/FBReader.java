@@ -59,6 +59,7 @@ import org.geometerplus.fbreader.formats.FormatPlugin;
 import org.geometerplus.fbreader.formats.PluginCollection;
 import org.geometerplus.fbreader.formats.external.ExternalFormatPlugin;
 import org.geometerplus.fbreader.tips.TipsManager;
+
 import org.geometerplus.android.fbreader.api.*;
 import org.geometerplus.android.fbreader.httpd.DataService;
 import org.geometerplus.android.fbreader.library.BookInfoActivity;
@@ -112,8 +113,8 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		}
 	};
 
-	boolean myIsPaused = false;
-	AlertDialog myDialogToShow = null;
+	boolean IsPaused = false;
+	Runnable OnResumeAction = null;
 
 	private boolean myNeedToOpenFile = false;
 	private Intent myIntentToOpen = null;
@@ -591,10 +592,10 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		});
 
 		registerReceiver(myBatteryInfoReceiver, new IntentFilter(Intent.ACTION_BATTERY_CHANGED));
-		myIsPaused = false;
-		if (myDialogToShow != null) {
-			myDialogToShow.show();
-			myDialogToShow = null;
+		IsPaused = false;
+		if (OnResumeAction != null) {
+			OnResumeAction.run();
+			OnResumeAction = null;
 		}
 
 		SetScreenOrientationAction.setOrientation(this, ZLibrary.Instance().getOrientationOption().getValue());
@@ -652,7 +653,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 	@Override
 	protected void onPause() {
-		myIsPaused = true;
+		IsPaused = true;
 		try {
 			unregisterReceiver(myBatteryInfoReceiver);
 		} catch (IllegalArgumentException e) {
