@@ -868,10 +868,9 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 	}
 
 	protected void onPluginNotFound() {
-		myFBReaderApp.Model = null;
 		getCollection().bindToService(this, new Runnable() {
 			public void run() {
-				myFBReaderApp.openBook(myFBReaderApp.Collection.getRecentBook(0), null, null);
+				myFBReaderApp.openHelpBook();
 			}
 		});
 	}
