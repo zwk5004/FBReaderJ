@@ -136,6 +136,7 @@ public final class FBReaderApp extends ZLApplication {
 				return;
 			}
 		}
+
 		Book tempBook = book;
 		if (tempBook == null) {
 			tempBook = Collection.getRecentBook(0);
