@@ -418,7 +418,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 		} else if (FBReaderIntents.Action.CLOSE.equals(intent.getAction())) {
 			myCancelIntent = intent;
 			myOpenBookIntent = null;
-		} else if ("android.fbreader.action.SWITCH_YOTA_SCREEN".equals(intent.getAction())) {
+		} else if (FBReaderIntents.Action.SWITCH_YOTA_SCREEN.equals(intent.getAction())) {
 			new YotaSwitchScreenAction(FBReader.this, myFBReaderApp, true).run();
 		} else if (FBReaderIntents.Action.PLUGIN_CRASH.equals(intent.getAction())) {
 			final Book book = FBReaderIntents.getBookExtra(intent);
