@@ -610,6 +610,8 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 
 	@Override
 	protected void onPause() {
+		SyncOperations.quickSync(this);
+
 		IsPaused = true;
 		try {
 			unregisterReceiver(myBatteryInfoReceiver);
