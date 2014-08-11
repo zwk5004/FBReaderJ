@@ -315,7 +315,7 @@ public final class FBReaderApp extends ZLApplication {
 			ZLTextHyphenator.Instance().load(book.getLanguage());
 			BookTextView.setModel(Model.getTextModel());
 			setBookmarkHighlightings(BookTextView, null);
-			BookTextView.gotoPosition(Collection.getStoredPosition(book.getId()));
+			BookTextView.gotoPosition(getStoredPosition());
 			if (bookmark == null) {
 				setView(BookTextView);
 			} else {
@@ -432,10 +432,10 @@ public final class FBReaderApp extends ZLApplication {
 		private final ZLTextPosition myPosition;
 		private final RationalNumber myProgress;
 
-		PositionSaver(Book book, ZLTextView view) {
+		PositionSaver(Book book, ZLTextPosition position, RationalNumber progress) {
 			myBook = book;
-			myPosition = new ZLTextFixedPosition(view.getStartCursor());
-			myProgress = view.getProgress();
+			myPosition = position;
+			myProgress = progress;
 		}
 
 		public void run() {
@@ -473,14 +473,32 @@ public final class FBReaderApp extends ZLApplication {
 	}
 
 	private volatile SaverThread mySaverThread;
+	private volatile ZLTextPosition myPosition;
+	private volatile Book myPositionBook;
 
+	public ZLTextPosition getStoredPosition() {
+		myPositionBook = Model != null ? Model.Book : null;
+		if (myPositionBook == null) {
+			return null;
+		}
+
+		final ZLTextPosition pos = Collection.getStoredPosition(myPositionBook.getId());
+		myPosition = new ZLTextFixedPosition(pos);
+		return pos;
+	}
 	public void storePosition() {
-		if (Model != null && Model.Book != null && BookTextView != null) {
+		final Book bk = Model != null ? Model.Book : null;
+		if (bk != null && bk == myPositionBook && myPosition != null && BookTextView != null) {
 			if (mySaverThread == null) {
 				mySaverThread = new SaverThread();
 				mySaverThread.start();
 			}
-			mySaverThread.add(new PositionSaver(Model.Book, BookTextView));
+			final ZLTextPosition position = new ZLTextFixedPosition(BookTextView.getStartCursor());
+			if (!myPosition.equals(position)) {
+				myPosition = position;
+				final RationalNumber progress = BookTextView.getProgress();
+				mySaverThread.add(new PositionSaver(bk, position, progress));
+			}
 		}
 	}
 
