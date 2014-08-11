@@ -617,8 +617,10 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 					openBook(intent, null, true);
 				}
 			});
-		} else {
+		} else if (myFBReaderApp.Model == null && myFBReaderApp.ExternalBook != null) {
 			checkForPlugin();
+		} else {
+			myFBReaderApp.gotoStoredPosition();
 		}
 
 		PopupPanel.restoreVisibilities(myFBReaderApp);
