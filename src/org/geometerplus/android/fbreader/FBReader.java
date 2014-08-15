@@ -29,7 +29,6 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.*;
-import android.util.Log;
 import android.view.*;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -64,7 +63,6 @@ import org.geometerplus.android.fbreader.formatPlugin.PluginUtil;
 import org.geometerplus.android.fbreader.httpd.DataService;
 import org.geometerplus.android.fbreader.library.BookInfoActivity;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
-import org.geometerplus.android.fbreader.formatPlugin.PluginUtil;
 import org.geometerplus.android.fbreader.sync.SyncOperations;
 import org.geometerplus.android.fbreader.tips.TipsActivity;
 
@@ -429,21 +427,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow {
 			});
 		} else {
 			super.onNewIntent(intent);
-			if (Intent.ACTION_VIEW.equals(action) || FBReaderIntents.Action.VIEW.equals(action)) {
-				myOpenBookIntent = intent;
-				if (intent.getBooleanExtra("KILL_PLUGIN", false)) {
-					Log.d("fbreader", "killing plugin");
-					if (myFBReaderApp.Model == null && myFBReaderApp.ExternalBook != null) {
-						final ExternalFormatPlugin plugin =
-							(ExternalFormatPlugin)myFBReaderApp.ExternalBook.getPluginOrNull();
-						try {
-							startActivity(PluginUtil.createIntent(plugin, PluginUtil.ACTION_KILL));
-						} catch (ActivityNotFoundException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-			}
 		}
 	}
 
