@@ -509,7 +509,7 @@ public final class FBReaderApp extends ZLApplication {
 		}
 
 		if (myStoredPositionBook != null &&
-			mySyncData.hasPosition(Collection.getHash(myStoredPositionBook))) {
+			mySyncData.hasPosition(Collection.getHash(myStoredPositionBook, true))) {
 			gotoStoredPosition();
 			storePosition();
 		}
@@ -521,7 +521,7 @@ public final class FBReaderApp extends ZLApplication {
 
 	private ZLTextFixedPosition getStoredPosition(Book book) {
 		final ZLTextFixedPosition.WithTimestamp fromServer =
-			mySyncData.getAndCleanPosition(Collection.getHash(book));
+			mySyncData.getAndCleanPosition(Collection.getHash(book, true));
 		final ZLTextFixedPosition.WithTimestamp local =
 			Collection.getStoredPosition(book.getId());
 
