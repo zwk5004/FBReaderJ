@@ -256,8 +256,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow, FBR
 
 		myFBReaderApp.setExternalFileOpener(new ExternalFileOpener(this));
 
-		VersionDependentViewUtil.setTitle(this, myFBReaderApp.getTitle());
-
 		if (myFBReaderApp.getPopupById(TextSearchPopup.ID) == null) {
 			new TextSearchPopup(myFBReaderApp);
 		}
