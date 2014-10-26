@@ -36,6 +36,8 @@ public class ViewOptions {
 	public final ZLIntegerRangeOption FooterHeight;
 	public final ZLStringOption ColorProfileName;
 
+	public final ZLBooleanOption YotaDrawOnBackScreen;
+
 	private ColorProfile myColorProfile;
 	private ZLTextStyleCollection myTextStyleCollection;
 	private FooterOptions myFooterOptions;
@@ -55,9 +57,9 @@ public class ViewOptions {
 		RightMargin =
 			new ZLIntegerRangeOption("Options", "RightMargin", 0, 100, horMargin);
 		TopMargin =
-			new ZLIntegerRangeOption("Options", "TopMargin", 0, 100, 0);
+			new ZLIntegerRangeOption("Options", "TopMargin", 0, 100, 15);
 		BottomMargin =
-			new ZLIntegerRangeOption("Options", "BottomMargin", 0, 100, 4);
+			new ZLIntegerRangeOption("Options", "BottomMargin", 0, 100, 20);
 		SpaceBetweenColumns =
 			new ZLIntegerRangeOption("Options", "SpaceBetweenColumns", 0, 300, 3 * horMargin);
 		ScrollbarType =
@@ -67,6 +69,9 @@ public class ViewOptions {
 		ColorProfileName =
 			new ZLStringOption("Options", "ColorProfile", ColorProfile.DAY);
 		ColorProfileName.setSpecialName("colorProfile");
+
+		YotaDrawOnBackScreen =
+			new ZLBooleanOption("LookNFeel", "YotaDrawOnBack", false);
 	}
 
 	public ColorProfile getColorProfile() {

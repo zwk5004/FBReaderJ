@@ -20,15 +20,24 @@
 package org.geometerplus.zlibrary.ui.android.view;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.*;
 import android.util.AttributeSet;
 import android.view.*;
+import android.widget.TextView;
 
 import org.geometerplus.zlibrary.core.application.ZLApplication;
 import org.geometerplus.zlibrary.core.application.ZLKeyBindings;
+import org.geometerplus.zlibrary.core.options.Config;
+import org.geometerplus.zlibrary.core.options.ZLIntegerOption;
+import org.geometerplus.zlibrary.core.resources.ZLResource;
 import org.geometerplus.zlibrary.core.view.ZLView;
 import org.geometerplus.zlibrary.core.view.ZLViewWidget;
 
+import org.geometerplus.zlibrary.ui.android.R;
+import org.geometerplus.zlibrary.ui.android.library.ZLAndroidLibrary;
+
+import org.geometerplus.fbreader.fbreader.options.PageTurningOptions;
 import org.geometerplus.android.fbreader.FBReader;
 
 public class ZLAndroidWidget extends View implements ZLViewWidget, View.OnLongClickListener {
@@ -59,9 +68,28 @@ public class ZLAndroidWidget extends View implements ZLViewWidget, View.OnLongCl
 		setOnLongClickListener(this);
 	}
 
+	private volatile boolean myAmendSize = false;
+	private volatile int myHDiff = 0;
+	private volatile int myHShift = 0;
+
+	public void setPreserveSize(boolean preserve) {
+		myAmendSize = preserve;
+		if (!preserve) {
+			myHDiff = 0;
+			myHShift = 0;
+		}
+	}
+
 	@Override
 	protected void onSizeChanged(int w, int h, int oldw, int oldh) {
 		super.onSizeChanged(w, h, oldw, oldh);
+		if (myAmendSize && oldw == w) {
+			myHDiff += h - oldh;
+			myHShift -= getStatusBarHeight();
+		} else {
+			myHDiff = 0;
+			myHShift = 0;
+		}
 		getAnimationProvider().terminate();
 		if (myScreenIsTouched) {
 			final ZLView view = ZLApplication.Instance().getCurrentView();
@@ -80,8 +108,9 @@ public class ZLAndroidWidget extends View implements ZLViewWidget, View.OnLongCl
 		}
 		super.onDraw(canvas);
 
-//		final int w = getWidth();
-//		final int h = getMainAreaHeight();
+		if (myHShift != 0) {
+			canvas.translate(0, myHShift);
+		}
 
 		if (getAnimationProvider().inProgress()) {
 			onDrawInScrolling(canvas);
@@ -89,20 +118,93 @@ public class ZLAndroidWidget extends View implements ZLViewWidget, View.OnLongCl
 			onDrawStatic(canvas);
 			ZLApplication.Instance().onRepaintFinished();
 		}
+
+		Config.Instance().runOnConnect(new Runnable() {
+			public void run() {
+				showHint(canvas);
+			}
+		});
+	}
+
+	private void showHint(final Canvas canvas) {
+		final Context context = getContext();
+		if (!(context instanceof FBReader)) {
+			return;
+		}
+
+		final ZLAndroidLibrary library = (ZLAndroidLibrary)ZLAndroidLibrary.Instance();
+		final ZLIntegerOption stageOption = library.ScreenHintStageOption;
+		if (!library.OldShowActionBarOption.getValue()) {
+			stageOption.setValue(3);
+		}
+		if (stageOption.getValue() >= 3) {
+			return;
+		}
+
+		final FBReader fbReader = (FBReader)context;
+		fbReader.runOnUiThread(new Runnable() {
+			public void run() {
+				String key = null;
+				if (!fbReader.barsAreShown()) {
+					if (stageOption.getValue() == 0) {
+						stageOption.setValue(1);
+					}
+					if (stageOption.getValue() == 1) {
+						key = "message1";
+					} else {
+						stageOption.setValue(3);
+					}
+				} else {
+					if (stageOption.getValue() == 1) {
+						stageOption.setValue(2);
+					}
+					if (stageOption.getValue() == 2) {
+						key = "message2";
+					}
+				}
+
+				final TextView hintView = (TextView)fbReader.findViewById(R.id.hint_view);
+				if (key != null) {
+					if (!new PageTurningOptions().Horizontal.getValue()) {
+						key = null;
+						stageOption.setValue(3);
+					}
+				}
+				if (key != null) {
+					final String text =
+						ZLResource.resource("dialog").getResource("screenHint").getResource(key).getValue();
+					final int w = getWidth();
+					final int h = getHeight();
+					final Paint paint = new Paint();
+					paint.setARGB(192, 51, 102, 153);
+					canvas.drawRect(w / 3, 0, w * 2 / 3, h, paint);
+					hintView.setVisibility(View.VISIBLE);
+					hintView.setText(text);
+				} else {
+					hintView.setVisibility(View.GONE);
+				}
+			}
+		});
 	}
 
 	private AnimationProvider myAnimationProvider;
 	private ZLView.Animation myAnimationType;
+	private int myStoredLayerType = -1;
 	private AnimationProvider getAnimationProvider() {
 		final ZLView.Animation type = ZLApplication.Instance().getCurrentView().getAnimationType();
 		if (myAnimationProvider == null || myAnimationType != type) {
 			myAnimationType = type;
+			if (myStoredLayerType != -1) {
+				setLayerType(myStoredLayerType, null);
+			}
 			switch (type) {
 				case none:
 					myAnimationProvider = new NoneAnimationProvider(myBitmapManager);
 					break;
 				case curl:
+					myStoredLayerType = getLayerType();
 					myAnimationProvider = new CurlAnimationProvider(myBitmapManager);
+					setLayerType(LAYER_TYPE_SOFTWARE, null);
 					break;
 				case slide:
 					myAnimationProvider = new SlideAnimationProvider(myBitmapManager);
@@ -266,7 +368,7 @@ public class ZLAndroidWidget extends View implements ZLViewWidget, View.OnLongCl
 			view.isScrollbarShown() ? getVerticalScrollbarWidth() : 0
 		);
 		footer.paint(context);
-		canvas.drawBitmap(myFooterBitmap, 0, getHeight() - footer.getHeight(), myPaint);
+		canvas.drawBitmap(myFooterBitmap, 0, getHeight() - myHDiff - footer.getHeight(), myPaint);
 	}
 
 	private void onDrawStatic(final Canvas canvas) {
@@ -519,6 +621,13 @@ public class ZLAndroidWidget extends View implements ZLViewWidget, View.OnLongCl
 
 	private int getMainAreaHeight() {
 		final ZLView.FooterArea footer = ZLApplication.Instance().getCurrentView().getFooterArea();
-		return footer != null ? getHeight() - footer.getHeight() : getHeight();
+		final int height = footer != null ? getHeight() - footer.getHeight() : getHeight();
+		return height - myHDiff;
+	}
+
+	private int getStatusBarHeight() {
+		final Resources res = getContext().getResources();
+		int resourceId = res.getIdentifier("status_bar_height", "dimen", "android");
+		return resourceId > 0 ? res.getDimensionPixelSize(resourceId) : 0;
 	}
 }

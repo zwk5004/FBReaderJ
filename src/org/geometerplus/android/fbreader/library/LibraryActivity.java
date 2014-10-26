@@ -83,6 +83,7 @@ public class LibraryActivity extends TreeActivity<LibraryTree> implements MenuIt
 			}
 		} else {
 			super.onNewIntent(intent);
+			invalidateOptionsMenu();
 		}
 	}
 
@@ -328,8 +329,9 @@ public class LibraryActivity extends TreeActivity<LibraryTree> implements MenuIt
 		final MenuItem item = menu.add(0, id, Menu.NONE, label);
 		item.setOnMenuItemClickListener(this);
 		if (iconId != -1) {
-			item.setIcon(iconId);
+			//item.setIcon(iconId);
 		}
+		item.setShowAsAction(MenuItem.SHOW_AS_ACTION_IF_ROOM);
 		return item;
 	}
 

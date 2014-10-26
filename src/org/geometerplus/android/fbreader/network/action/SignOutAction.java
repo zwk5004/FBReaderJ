@@ -34,7 +34,7 @@ public class SignOutAction extends Action {
 	private final ZLNetworkContext myNetworkContext;
 
 	public SignOutAction(Activity activity, ZLNetworkContext context) {
-		super(activity, ActionCode.SIGNOUT, "signOut", -1);
+		super(activity, ActionCode.SIGNOUT, "signOut", false);
 		myNetworkContext = context;
 	}
 

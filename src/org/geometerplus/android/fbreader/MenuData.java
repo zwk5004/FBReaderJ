@@ -27,6 +27,7 @@ import org.geometerplus.zlibrary.ui.android.R;
 import org.geometerplus.fbreader.fbreader.ActionCode;
 
 import org.geometerplus.android.fbreader.api.MenuNode;
+import org.geometerplus.android.util.DeviceType;
 
 public abstract class MenuData {
 	private static List<MenuNode> ourNodes;
@@ -35,6 +36,10 @@ public abstract class MenuData {
 		if (ourNodes == null) {
 			ourNodes = new ArrayList<MenuNode>();
 			ourNodes.add(new MenuNode.Item(ActionCode.SHOW_LIBRARY, R.drawable.ic_menu_library));
+			if (DeviceType.Instance() == DeviceType.YOTA_PHONE) {
+				ourNodes.add(new MenuNode.Item(ActionCode.YOTA_SWITCH_TO_BACK_SCREEN, R.drawable.ic_menu_p2b));
+				//ourNodes.add(new MenuNode.Item(ActionCode.YOTA_SWITCH_TO_FRONT_SCREEN, R.drawable.ic_menu_p2b));
+			}
 			ourNodes.add(new MenuNode.Item(ActionCode.SHOW_NETWORK_LIBRARY, R.drawable.ic_menu_networklibrary));
 			ourNodes.add(new MenuNode.Item(ActionCode.SHOW_TOC, R.drawable.ic_menu_toc));
 			ourNodes.add(new MenuNode.Item(ActionCode.SHOW_BOOKMARKS, R.drawable.ic_menu_bookmarks));
@@ -56,7 +61,6 @@ public abstract class MenuData {
 			ourNodes.add(orientations);
 			ourNodes.add(new MenuNode.Item(ActionCode.INCREASE_FONT));
 			ourNodes.add(new MenuNode.Item(ActionCode.DECREASE_FONT));
-			ourNodes.add(new MenuNode.Item(ActionCode.SHOW_NAVIGATION));
 			ourNodes.add(new MenuNode.Item(ActionCode.INSTALL_PLUGINS));
 			ourNodes.add(new MenuNode.Item(ActionCode.OPEN_WEB_HELP));
 			ourNodes = Collections.unmodifiableList(ourNodes);

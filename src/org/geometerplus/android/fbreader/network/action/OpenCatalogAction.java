@@ -38,7 +38,7 @@ public class OpenCatalogAction extends Action {
 	private final ZLNetworkContext myNetworkContext;
 
 	public OpenCatalogAction(Activity activity, ZLNetworkContext nc) {
-		super(activity, ActionCode.OPEN_CATALOG, "openCatalog", -1);
+		super(activity, ActionCode.OPEN_CATALOG, "openCatalog", false);
 		myNetworkContext = nc;
 	}
 

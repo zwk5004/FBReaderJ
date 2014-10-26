@@ -38,7 +38,7 @@ public class ShowBookInfoAction extends BookAction {
 	private final ZLNetworkContext myNetworkContext;
 
 	public ShowBookInfoAction(Activity activity, ZLNetworkContext nc) {
-		super(activity, ActionCode.SHOW_BOOK_ACTIVITY, "bookInfo");
+		super(activity, ActionCode.SHOW_BOOK_ACTIVITY, "bookInfo", false);
 		myNetworkContext = nc;
 	}
 

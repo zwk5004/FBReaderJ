@@ -20,7 +20,6 @@
 package org.geometerplus.android.fbreader.network.action;
 
 import org.geometerplus.zlibrary.core.network.ZLNetworkContext;
-import org.geometerplus.zlibrary.ui.android.R;
 
 import org.geometerplus.fbreader.network.*;
 import org.geometerplus.fbreader.network.tree.NetworkCatalogTree;
@@ -32,7 +31,7 @@ public class ReloadCatalogAction extends CatalogAction {
 	private final ZLNetworkContext myNetworkContext;
 
 	public ReloadCatalogAction(NetworkLibraryActivity activity, ZLNetworkContext nc) {
-		super(activity, ActionCode.RELOAD_CATALOG, "reload", R.drawable.ic_menu_refresh);
+		super(activity, ActionCode.RELOAD_CATALOG, "reload", true);
 		myNetworkContext = nc;
 	}
 

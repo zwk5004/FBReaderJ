@@ -2,14 +2,13 @@
 <manifest
 		xmlns:android="http://schemas.android.com/apk/res/android"
 		package="org.geometerplus.zlibrary.ui.android"
-		android:versionCode="2015210"
+		android:versionCode="2015220"
 		android:versionName="2.2 beta 2"
 		android:installLocation="auto"
 >
 	<uses-sdk
-			android:minSdkVersion="5"
-			android:maxSdkVersion="10"
-			android:targetSdkVersion="9"
+			android:minSdkVersion="11"
+			android:targetSdkVersion="14"
 	/>
 	<supports-screens android:smallScreens="true" android:normalScreens="true" android:largeScreens="true" android:xlargeScreens="true" android:anyDensity="true"/>
 	<uses-permission android:name="android.permission.INTERNET"/>
@@ -20,6 +19,7 @@
 	<uses-permission android:name="fbreader.permission.LIBRARY"/>
 	<uses-permission android:name="fbreader.permission.CONFIG"/>
 	<uses-permission android:name="fbreader.permission.SYNC"/>
+	<uses-permission android:name="com.yotadevices.framework.permission.ACCESS_BACKSCREEN"/>
 	<permission android:name="fbreader.permission.LIBRARY" android:description="@string/permission_library_description" android:label="@string/permission_library_label"/>
 	<permission android:name="fbreader.permission.CONFIG" android:description="@string/permission_config_description" android:label="@string/permission_config_label"/>
 	<permission android:name="fbreader.permission.SYNC" android:description="@string/permission_sync_description" android:label="@string/permission_sync_label"/>
@@ -332,5 +332,10 @@
 		<activity android:name="org.geometerplus.android.util.FolderListDialogActivity" android:configChanges="orientation|screenSize|keyboard|keyboardHidden" android:theme="@style/FBReader.Dialog" android:exported="false"/>
 		<activity android:name="org.geometerplus.android.util.EditTagsDialogActivity" android:configChanges="orientation|screenSize|keyboard|keyboardHidden" android:theme="@style/FBReader.Dialog" android:exported="false"/>
 		<activity android:name="org.geometerplus.android.util.EditAuthorsDialogActivity" android:configChanges="orientation|screenSize|keyboard|keyboardHidden" android:theme="@style/FBReader.Dialog" android:exported="false"/>
+		<service android:name="com.yotadevices.fbreader.FBReaderYotaService" android:exported="false" android:launchMode="singleTask"/>
+		<uses-library android:required="false" android:name="com.yotadevices.platinum"/>
+		<meta-data android:name="com.yotadevices.BS_ICON" android:resource="@drawable/fbreader_bs_icon"/>
+		<meta-data android:name="com.yotadevices.BS_TITLE" android:value="FBReader"/>
+		<meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
 	</application>
 </manifest>
