@@ -1036,37 +1036,37 @@ public final class FBReader extends Activity implements ZLApplicationWindow, FBR
 	public Activity getActivity() {
 		return this;
 	}
-	
+
 	@Override
 	public void setPreserveSize(boolean b) {
 		myMainView.setPreserveSize(b);
 	}
-	
+
 	@Override
 	public ZLBooleanOption getStatusBarOption() {
 		return getZLibrary().ShowStatusBarOption;
 	}
-	
+
 	@Override
 	public ZLBooleanOption getActionBarOption() {
 		return getZLibrary().ShowActionBarOption;
 	}
-	
+
 	@Override
 	public ZLBooleanOption getFullscreenModeOption() {
 		return getZLibrary().EnableFullscreenModeOption;
 	}
-	
+
 	@Override
 	public ZLBooleanOption getButtonLightsOption() {
 		return getZLibrary().DisableButtonLightsOption;
 	}
-	
+
 	@Override
 	public TextView getTitleView() {
 		return (TextView)getLayoutInflater().inflate(R.layout.title_view, null);
 	}
-	
+
 	@Override
 	public View getRootView() {
 		return myRootView;
