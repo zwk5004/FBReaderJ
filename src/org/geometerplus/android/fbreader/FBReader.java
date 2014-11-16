@@ -64,6 +64,9 @@ import org.geometerplus.android.fbreader.api.*;
 import org.geometerplus.android.fbreader.formatPlugin.PluginUtil;
 import org.geometerplus.android.fbreader.httpd.DataService;
 import org.geometerplus.android.fbreader.libraryService.BookCollectionShadow;
+import org.geometerplus.android.fbreader.network.BookDownloaderService;
+import org.geometerplus.android.fbreader.network.NetworkNotifications;
+import org.geometerplus.android.fbreader.sync.MissingBookActivity;
 import org.geometerplus.android.fbreader.sync.SyncOperations;
 import org.geometerplus.android.fbreader.tips.TipsActivity;
 
@@ -1225,9 +1228,7 @@ public final class FBReader extends Activity implements ZLApplicationWindow, FBR
 
 	@Override
 	public void showMissingBookNotification(SyncData.ServerBookInfo info) {
-		final String errorMessage =
-			ZLResource.resource("errorMessage").getResource("bookIsMissing").getValue()
-				.replace("%s", info.Title);
+		final String errorMessage = MissingBookActivity.errorMessage(info.Title);
 
 		final NotificationManager notificationManager =
 			(NotificationManager)getSystemService(NOTIFICATION_SERVICE);
@@ -1240,6 +1241,6 @@ public final class FBReader extends Activity implements ZLApplicationWindow, FBR
 			.setContentIntent(pendingIntent)
 			.setAutoCancel(true)
 			.build();
-		notificationManager.notify(0, notification);
+		notificationManager.notify(NetworkNotifications.MISSING_BOOK_ID, notification);
 	}
 }
