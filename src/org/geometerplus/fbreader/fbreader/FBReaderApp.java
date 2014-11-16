@@ -302,7 +302,7 @@ public final class FBReaderApp extends ZLApplication {
 			return;
 		}
 
-		onViewChanged();
+		hideActivePopup();
 		storePosition();
 
 		BookTextView.setModel(null);
@@ -515,7 +515,7 @@ public final class FBReaderApp extends ZLApplication {
 		}
 	}
 
-	private volatile SaverThread mySaverThread;
+	private final SaverThread mySaverThread = new SaverThread();
 	private volatile ZLTextPosition myStoredPosition;
 	private volatile Book myStoredPositionBook;
 
@@ -557,11 +557,12 @@ public final class FBReaderApp extends ZLApplication {
 
 	private void savePosition() {
 		final RationalNumber progress = BookTextView.getProgress();
-		if (mySaverThread == null) {
-			mySaverThread = new SaverThread();
-			mySaverThread.start();
+		synchronized (mySaverThread) {
+			if (!mySaverThread.isAlive()) {
+				mySaverThread.start();
+			}
+			mySaverThread.add(new PositionSaver(myStoredPositionBook, myStoredPosition, progress));
 		}
-		mySaverThread.add(new PositionSaver(myStoredPositionBook, myStoredPosition, progress));
 	}
 
 	public boolean hasCancelActions() {
