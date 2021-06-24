@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: zak-test-api
+  description: Test API for Backstage
+  tags:
+    - java
+spec:
+  type: service
+  lifecycle: experimental
+  owner: team-b
+  system: podcast
